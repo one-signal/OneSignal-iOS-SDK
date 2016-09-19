@@ -150,7 +150,7 @@
 @synthesize mutableContent = _mutableContent;
 #endif
 
-- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayType)displayType {
+- (id)initWithPayload:(OSNotificationPayload *)payload displayType:(OSNotificationDisplayOption)displayType {
     self = [super init];
     if (self) {
         _payload = payload;
@@ -169,7 +169,7 @@
         
         //If remote silent -> shown = false
         //If app is active and in-app alerts are not enabled -> shown = false
-        if(_silentNotification || (isActive && ![[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_INAPP_ALERT"]))
+        if(_silentNotification || (isActive && [[NSUserDefaults standardUserDefaults] boolForKey:@"ONESIGNAL_ALERT_OPTION"] == None))
             _shown = false;
         
     }
@@ -343,7 +343,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     return lastMessageReceived[@"custom"][@"i"] || lastMessageReceived[@"os_data"][@"i"];
 }
 
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationReceived:(OSNotificationDisplayOption)displayType {
     if (!handleNotificationReceived || ![self isOneSignalPayload]) return;
     
     
@@ -358,7 +358,7 @@ OSHandleNotificationActionBlock handleNotificationAction;
     handleNotificationReceived(notification);
 }
 
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType {
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayOption)displayType {
     if (!handleNotificationAction || ![self isOneSignalPayload]) return;
     
     OSNotificationAction *action = [[OSNotificationAction alloc] initWithActionType:actionType :actionID];
@@ -508,7 +508,7 @@ static OneSignal* singleInstance = nil;
     if ([actionArray count] == 2)
         actionArray = (NSMutableArray*)[[actionArray reverseObjectEnumerator] allObjects];
     
-    id category = [NSClassFromString(@")UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
+    id category = [NSClassFromString(@"UNNotificationCategory") categoryWithIdentifier:@"__dynamic__" actions:actionArray intentIdentifiers:@[] options:UNNotificationCategoryOptionCustomDismissAction];
     
     NSSet* set = [[NSSet alloc] initWithArray:@[category]];
     

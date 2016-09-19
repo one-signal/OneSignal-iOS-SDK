@@ -68,15 +68,25 @@ typedef enum : NSUInteger {
 
 /* The way a notification was displayed to the user */
 typedef enum : NSUInteger {
-    /*iOS native notification display*/
-    Notification,
-
+    /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
+    None,
+    
     /*Default UIAlertView display*/
     InAppAlert,
     
-    /*Notification is silent, or app is in focus but InAppAlertNotifications are disabled*/
-    None
-} OSNotificationDisplayType;
+    /*iOS native notification display*/
+    Notification
+
+} OSNotificationDisplayOption;
+
+
+
+/* iOS 10+
+ Used as value type for `kOSSettingsKeyInFocusDisplayOption`
+ for setting the display option of a notification received while the app was in focus
+ */
+typedef OSNotificationDisplayOption OSInFocusDisplayOption;
+
 
 @interface OSNotificationAction : NSObject
 
@@ -133,7 +143,7 @@ typedef enum : NSUInteger {
 @property(readonly)OSNotificationPayload* payload;
 
 /* Display method of the notification */
-@property(readonly)OSNotificationDisplayType displayType;
+@property(readonly)OSNotificationDisplayOption displayType;
 
 /* Set to true when the user was able to see the notification and reacted to it
  Set to false when app is in focus and in-app alerts are disabled, or the remote notification is silent. */
@@ -190,6 +200,12 @@ extern NSString * const kOSSettingsKeyInAppAlerts;
 
 /*Enable In-App display of Launch URLs*/
 extern NSString * const kOSSettingsKeyInAppLaunchURL;
+
+/* iOS10+ - 
+ Set notificaion's in-focus display option.
+ Value must be an OSNotificationDisplayOption enum
+*/
+extern NSString * const kOSSettingsKeyInFocusDisplayOption;
 
 /**
     OneSignal provides a high level interface to interact with OneSignal's push service.

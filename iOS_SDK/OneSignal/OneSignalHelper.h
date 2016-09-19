@@ -42,8 +42,8 @@
 + (NSArray*)getActionButtons;
 + (void)lastMessageReceived:(NSDictionary*)message;
 + (void)notificationBlocks:(OSHandleNotificationReceivedBlock)receivedBlock :(OSHandleNotificationActionBlock)actionBlock;
-+ (void)handleNotificationReceived:(OSNotificationDisplayType)displayType;
-+ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayType)displayType;
++ (void)handleNotificationReceived:(OSNotificationDisplayOption)displayType;
++ (void)handleNotificationAction:(OSNotificationActionType)actionType actionID:(NSString*)actionID displayType:(OSNotificationDisplayOption)displayType;
 
 // - iOS 10
 + (BOOL)isiOS10Plus;
