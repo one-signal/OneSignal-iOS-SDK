@@ -8,9 +8,11 @@ Pod::Spec.new do |s|
   
   s.source           = { :git => "https://github.com/OneSignal/OneSignal-iOS-SDK.git", :tag => s.version.to_s }
   
-  s.platform     = :ios
+  s.ios.deployment_target = '9.0'
+  s.tvos.deployment_target = '9.0'
   s.requires_arc = true
   
   s.ios.vendored_frameworks = 'iOS_SDK/Framework/OneSignal.framework'
+  s.tvos.vendored_frameworks = 'iOS_SDK/Framework/OneSignal.framework'
   s.framework               = 'SystemConfiguration'
 end
