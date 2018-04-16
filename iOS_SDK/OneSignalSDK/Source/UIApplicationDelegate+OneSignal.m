@@ -34,6 +34,7 @@
 #import "OneSignalLocation.h"
 #import "OneSignalSelectorHelpers.h"
 #import "OneSignalHelper.h"
+#import "OneSignalExtensionBadgeHandler.h"
 
 @interface OneSignal (UN_extra)
 + (void) didRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken;
@@ -69,18 +70,21 @@ static NSArray* delegateSubclasses = nil;
 
 
 
-- (void) setOneSignalDelegate:(id<UIApplicationDelegate>)delegate {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"ONESIGNAL setOneSignalDelegate CALLED: %@", delegate]];
++ (void)swizzleSelectors {
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"%s called", __PRETTY_FUNCTION__]];
     
     if (delegateClass) {
-        [self setOneSignalDelegate:delegate];
         return;
     }
     
     Class newClass = [OneSignalAppDelegate class];
     
-    delegateClass = getClassWithProtocolInHierarchy([delegate class], @protocol(UIApplicationDelegate));
+    delegateClass = getClassWithProtocolInHierarchy([[UIApplication sharedApplication].delegate class], @protocol(UIApplicationDelegate));
     delegateSubclasses = ClassGetSubclasses(delegateClass);
+    
+    injectToProperClass(@selector(onesignalSetApplicationIconBadgeNumber:),
+                        @selector(setApplicationIconBadgeNumber:), delegateSubclasses, newClass, delegateClass);
+
     
     // Need to keep this one for iOS 10 for content-available notifiations when the app is not in focus
     //   iOS 10 doesn't fire a selector on UNUserNotificationCenter in this cases most likely becuase
@@ -94,7 +98,6 @@ static NSArray* delegateSubclasses = nil;
                         @selector(application:didFailToRegisterForRemoteNotificationsWithError:), delegateSubclasses, newClass, delegateClass);
     
     if (NSClassFromString(@"CoronaAppDelegate")) {
-        [self setOneSignalDelegate:delegate];
         return;
     }
     
@@ -116,8 +119,6 @@ static NSArray* delegateSubclasses = nil;
     // Used to track how long the app has been closed
     injectToProperClass(@selector(oneSignalApplicationWillTerminate:),
                         @selector(applicationWillTerminate:), delegateSubclasses, newClass, delegateClass);
-    
-    [self setOneSignalDelegate:delegate];
 }
 
 + (void)sizzlePreiOS10MethodsPhase1 {
@@ -145,6 +146,16 @@ static NSArray* delegateSubclasses = nil;
                         @selector(application:didReceiveLocalNotification:), delegateSubclasses, [OneSignalAppDelegate class], delegateClass);
 }
 
+
+/*
+ In order for the badge count to be consistent even in situations where the developer manually sets the badge number,
+ We swizzle the 'setApplicationIconBadgeNumber()' to intercept these calls so we always know the latest count
+ */
+- (void)onesignalSetApplicationIconBadgeNumber:(NSInteger)badge {
+    [OneSignalExtensionBadgeHandler updateCachedBadgeValue:badge];
+    
+    [self onesignalSetApplicationIconBadgeNumber:badge];
+}
 
 - (void)oneSignalDidRegisterForRemoteNotifications:(UIApplication*)app deviceToken:(NSData*)inDeviceToken {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterForRemoteNotifications:deviceToken:"];

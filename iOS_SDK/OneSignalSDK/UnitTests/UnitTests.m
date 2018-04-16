@@ -90,6 +90,52 @@
 
 @implementation UnitTests
 
+- (void)beforeAllTest {
+    static var setupUIApplicationDelegate = false;
+    if (setupUIApplicationDelegate)
+        return;
+    
+    // Normally this just loops internally, overwrote _run to work around this.
+    UIApplicationMain(0, nil, nil, NSStringFromClass([UnitTestAppDelegate class]));
+    
+    setupUIApplicationDelegate = true;
+    
+    // InstallUncaughtExceptionHandler();
+    
+    // Force swizzle in all methods for tests.
+    OneSignalHelperOverrider.mockIOSVersion = 8;
+    [OneSignalAppDelegate swizzleSelectors];
+    OneSignalHelperOverrider.mockIOSVersion = 10;
+}
+
+- (void)clearStateForAppRestart {
+    NSLog(@"=======  APP RESTART ======\n\n");
+    
+    NSDateOverrider.timeOffset = 0;
+    [OneSignalClientOverrider reset:self];
+    [UNUserNotificationCenterOverrider reset:self];
+    [UIApplicationOverrider reset];
+    [OneSignalTrackFirebaseAnalyticsOverrider reset];
+    
+    NSLocaleOverrider.preferredLanguagesArray = @[@"en-US"];
+
+    [OneSignalHelper performSelector:NSSelectorFromString(@"resetLocals")];
+    
+    [OneSignal setValue:nil forKeyPath:@"lastAppActiveMessageId"];
+    [OneSignal setValue:nil forKeyPath:@"lastnonActiveMessageId"];
+    [OneSignal setValue:@0 forKeyPath:@"mSubscriptionStatus"];
+    
+    [OneSignalTracker performSelector:NSSelectorFromString(@"resetLocals")];
+    
+    [NSObjectOverrider reset];
+    
+    [OneSignal performSelector:NSSelectorFromString(@"clearStatics")];
+    
+    [UIAlertViewOverrider reset];
+    
+    [OneSignal setLogLevel:ONE_S_LL_VERBOSE visualLevel:ONE_S_LL_NONE];
+}
+
 // Called before each test.
 - (void)setUp {
     [super setUp];
