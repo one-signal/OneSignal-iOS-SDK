@@ -40,6 +40,7 @@
 @interface OSMessagingController ()
 @property (strong, nonatomic, nonnull) NSArray <OSInAppMessage *> *messages;
 @property (strong, nonatomic, nonnull) OSTriggerController *triggerController;
+@property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *seenInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableArray <OSInAppMessage *> *messageDisplayQueue;
 @property (strong, nonatomic, nonnull) NSMutableDictionary <NSString *, OSInAppMessage *> *redisplayInAppMessages;
 @property (strong, nonatomic, nonnull) NSMutableSet <NSString *> *clickedClickIds;
@@ -104,6 +105,10 @@
 
 + (void)setMessagesForRedisplay:(NSMutableDictionary <NSString *, OSInAppMessage *> *)messagesForRedisplay {
     [OSMessagingController.sharedInstance setRedisplayInAppMessages:messagesForRedisplay];
+}
+
++ (void)setSeenMessages:(NSMutableSet <NSString *> *)seenMessages {
+    [OSMessagingController.sharedInstance setSeenInAppMessages:seenMessages];
 }
 
 + (void)setMockDateGenerator:(NSTimeInterval (^)(void))testDateGenerator {

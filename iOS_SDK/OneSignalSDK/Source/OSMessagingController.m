@@ -133,7 +133,14 @@ static BOOL _isInAppMessagingPaused = false;
     self.messages = newMessages;
     
     [self removeMessagesWithRedisplayFromCache:newMessages];
+    [self resetRedisplayMessagesBySession];
     [self evaluateMessages];
+}
+
+- (void)resetRedisplayMessagesBySession {
+    for (NSString *messageId in _redisplayInAppMessages) {
+        [_redisplayInAppMessages objectForKey:messageId].isDisplayed = false;
+    }
 }
 
 /*
@@ -307,8 +314,10 @@ static BOOL _isInAppMessagingPaused = false;
         message.displayStats.displayQuantity = redisplayMessageSavedData.displayStats.displayQuantity;
         message.displayStats.lastDisplayTime = redisplayMessageSavedData.displayStats.lastDisplayTime;
         
+        // Message that don't have triggers should display only once per session
+        BOOL triggerHasChanged = message.isTriggerChanged || (!redisplayMessageSavedData.isDisplayed && [message.triggers count] == 0);
         // Check if conditions are correct for redisplay
-        if ([message isTriggerChanged] &&
+        if (triggerHasChanged &&
             [message.displayStats isDelayTimeSatisfied:self.dateGenerator()] &&
             [message.displayStats shouldDisplayAgain]) {
             [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setDataForRedisplay clear arrays"];
@@ -450,6 +459,7 @@ static BOOL _isInAppMessagingPaused = false;
     message.displayStats.lastDisplayTime = displayTimeSeconds;
     [message.displayStats incrementDisplayQuantity];
     message.isTriggerChanged = false;
+    message.isDisplayed = true;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"redisplayInAppMessages: %@", [_redisplayInAppMessages description]]];
     

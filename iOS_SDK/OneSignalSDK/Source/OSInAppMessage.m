@@ -127,6 +127,9 @@
     else
         return nil;
     
+    if (json[@"displayed"]) {
+        message.isDisplayed = json[@"displayed"];
+    }
     return message;
 }
 
@@ -159,6 +162,8 @@
     if ([_displayStats isRedisplayEnabled]) {
         json[@"redisplay"] = [_displayStats jsonRepresentation];
     }
+    
+    json[@"displayed"] = @(_isDisplayed);
     
     return json;
 }
