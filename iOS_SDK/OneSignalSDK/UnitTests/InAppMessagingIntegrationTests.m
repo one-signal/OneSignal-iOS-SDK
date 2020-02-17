@@ -27,6 +27,7 @@
 
 #import <XCTest/XCTest.h>
 #import "OneSignal.h"
+#import "OneSignalUserDefaults.h"
 #import "OneSignalHelper.h"
 #import "OSInAppMessage.h"
 #import "OSTrigger.h"
@@ -298,6 +299,96 @@
     [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
     // The action should cause an "opened" API request
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestInAppMessageClicked class]));
+}
+
+- (void)testMessageClickedLaunchesOutcomeAPIRequest {
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction new];
+    action.clickType = @"button";
+    action.clickId = @"test_action_id";
+    // add outcome to action
+    let outcomeName = @"test_outcome";
+    int outcomeWeight = 10;
+    NSDictionary *jsonWithWeight = @{
+        @"name" : outcomeName,
+        @"weight" : @(outcomeWeight)
+    };
+    action.outcome = [OSInAppMessageOutcome instanceWithJson:jsonWithWeight];
+    
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
+    XCTAssertEqual(outcomeWeight, [[OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"] intValue]);
+    
+    [OneSignalClientOverrider reset:self];
+    NSDictionary *json = @{
+        @"name" : outcomeName
+    };
+    action.outcome = [OSInAppMessageOutcome instanceWithJson:json];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
+    XCTAssertFalse([OneSignalClientOverrider.lastHTTPRequest objectForKey:@"weight"]);
+    
+    [OneSignalClientOverrider reset:self];
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:NO];
+    
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // With unattributed outcomes disable no outcome request should happen
+    XCTAssertFalse(OneSignalClientOverrider.lastHTTPRequestType);
+}
+
+- (void)testMessageClickedLaunchesUniqueOutcomeAPIRequest {
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_UNATTRIBUTED_SESSION_ENABLED withValue:YES];
+    let message = [OSInAppMessageTestHelper testMessageJsonWithTriggerPropertyName:OS_DYNAMIC_TRIGGER_KIND_SESSION_TIME withId:@"test_id1" withOperator:OSTriggerOperatorTypeLessThan withValue:@10.0];
+    
+    let registrationResponse = [OSInAppMessageTestHelper testRegistrationJsonWithMessages:@[message]];
+    
+    // the trigger should immediately evaluate to true and should
+    // be shown once the SDK is fully initialized.
+    [OneSignalClientOverrider setMockResponseForRequest:NSStringFromClass([OSRequestRegisterUser class]) withResponse:registrationResponse];
+    
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    // the message should now be displayed
+    // simulate a button press (action) on the inapp message
+    let action = [OSInAppMessageAction new];
+    action.clickType = @"button";
+    action.clickId = @"test_action_id";
+    // add outcome to action
+    let outcomeName = @"test_outcome";
+    NSDictionary *json = @{
+        @"name" : outcomeName,
+        @"unique" : @(YES)
+    };
+    action.outcome = [OSInAppMessageOutcome instanceWithJson:json];
+    
+    let testMessage = [OSInAppMessage instanceWithJson:message];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action should cause an "outcome" API request
+    XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequestType, NSStringFromClass([OSRequestSendOutcomesToServer class]));
+    XCTAssertEqual(outcomeName, [OneSignalClientOverrider.lastHTTPRequest objectForKey:@"id"]);
+    
+    [OneSignalClientOverrider reset:self];
+    action.outcome = [OSInAppMessageOutcome instanceWithJson:json];
+    [OSMessagingController.sharedInstance messageViewDidSelectAction:testMessage withAction:action];
+    // The action shouldn't cause an "outcome" API request
+    XCTAssertFalse(OneSignalClientOverrider.lastHTTPRequestType);
 }
 
 - (void)testDisablingMessages_stillCreatesMessageQueue_butPreventsMessageDisplay {

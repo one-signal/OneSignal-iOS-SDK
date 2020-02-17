@@ -34,6 +34,13 @@
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
 
+@interface OneSignal ()
+
++ (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value;
++ (void)sendUniqueClickActionOutcome:(NSString * _Nonnull)name;
+
+@end
+
 @interface OSMessagingController ()
 
 @property (strong, nonatomic, nullable) UIWindow *window;
@@ -318,6 +325,46 @@ static BOOL _isInAppMessagingPaused = false;
     }
 }
 
+- (void)sendClickRESTCall:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
+    // Make sure no click tracking is performed for IAM previews
+    // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
+    // Handles body, button, or image clicks
+    if (message.isPreview || [self.clickedClickIds containsObject:action.clickId])
+        return;
+    // Add clickId to clickedClickIds
+    [self.clickedClickIds addObject:action.clickId];
+   
+    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.app_id
+                                                    withPlayerId:OneSignal.currentSubscriptionState.userId
+                                                   withMessageId:message.messageId
+                                                    forVariantId:message.variantId
+                                                      withAction:action];
+   
+   [OneSignalClient.sharedClient executeRequest:metricsRequest
+                                      onSuccess:^(NSDictionary *result) {
+                                          NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST click update for click id: %@, with result: %@", message.messageId, action.clickId,  result];
+                                          [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
+                                          
+                                          // Save the updated clickedClickIds since click was tracked successfully
+                                          [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
+                                      }
+                                      onFailure:^(NSError *error) {
+                                          NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];
+                                          [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
+                                          
+                                          // Remove clickId from local clickedClickIds since click was not tracked
+                                          [self.clickedClickIds removeObject:action.clickId];
+                                      }];
+}
+
+- (void)sendOutcomeWithAction:(OSInAppMessageAction *)action {
+    if (action.outcome.unique) {
+        [OneSignal sendUniqueClickActionOutcome:action.outcome.name];
+    } else {
+       [OneSignal sendClickActionOutcomeWithValue:action.outcome.name value:action.outcome.weight > 0 ? action.outcome.weight : @0];
+    }
+}
+
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     // Assign firstClick BOOL based on message being clicked previously or not
     action.firstClick = [message takeActionAsUnique];
@@ -327,37 +374,12 @@ static BOOL _isInAppMessagingPaused = false;
     
     if (self.actionClickBlock)
         self.actionClickBlock(action);
-  
-    // Make sure no click tracking is performed for IAM previews
-    // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
-    // Handles body, button, or image clicks
-    if (message.isPreview || [self.clickedClickIds containsObject:action.clickId])
-        return;
     
-    // Add clickId to clickedClickIds
-    [self.clickedClickIds addObject:action.clickId];
+    [self sendClickRESTCall:message withAction:action];
     
-    let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.app_id
-                                                    withPlayerId:OneSignal.currentSubscriptionState.userId
-                                                   withMessageId:message.messageId
-                                                    forVariantId:message.variantId
-                                                      withAction:action];
-    
-    [OneSignalClient.sharedClient executeRequest:metricsRequest
-                                       onSuccess:^(NSDictionary *result) {
-                                           NSString *successMessage = [NSString stringWithFormat:@"In App Message with id: %@, successful POST click update for click id: %@, with result: %@", message.messageId, action.clickId,  result];
-                                           [OneSignal onesignal_Log:ONE_S_LL_DEBUG message:successMessage];
-                                           
-                                           // Save the updated clickedClickIds since click was tracked successfully
-                                           [OneSignalUserDefaults.initStandard saveSetForKey:OS_IAM_CLICKED_SET_KEY withValue:self.clickedClickIds];
-                                       }
-                                       onFailure:^(NSError *error) {
-                                           NSString *errorMessage = [NSString stringWithFormat:@"In App Message with id: %@, failed POST click update for click id: %@, with error: %@", message.messageId, action.clickId, error];
-                                           [OneSignal onesignal_Log:ONE_S_LL_ERROR message:errorMessage];
-                                           
-                                           // Remove clickId from local clickedClickIds since click was not tracked
-                                           [self.clickedClickIds removeObject:action.clickId];
-                                       }];
+    if (action.outcome) {
+        [self sendOutcomeWithAction:action];
+    }
 }
 
 /*

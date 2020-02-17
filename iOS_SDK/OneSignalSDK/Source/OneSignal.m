@@ -2610,6 +2610,19 @@ static NSString *_lastnonActiveMessageId;
     [_outcomeEventsController sendUniqueOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
 }
 
++ (void)sendUniqueClickActionOutcome:(NSString * _Nonnull)name {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendUniqueOutcome:onSuccess:"])
+        return;
+
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        return;
+    }
+    
+    [_outcomeEventsController sendUniqueClickOutcomeEvent:name appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
+}
+
 + (void)sendOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
     [self sendOutcomeWithValue:name value:value onSuccess:nil];
 }
@@ -2631,6 +2644,19 @@ static NSString *_lastnonActiveMessageId;
         return;
 
     [_outcomeEventsController sendOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH] successBlock:success];
+}
+
++ (void)sendClickActionOutcomeWithValue:(NSString * _Nonnull)name value:(NSNumber * _Nonnull)value {
+    // return if the user has not granted privacy permissions
+    if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:@"sendClickOutcomeWithValue:value:"])
+        return;
+
+    if (!_outcomeEventsController) {
+        [self onesignal_Log:ONE_S_LL_ERROR message:@"Make sure OneSignal init is called first"];
+        return;
+    }
+    
+    [_outcomeEventsController sendClickOutcomeEventWithValue:name value:value appId:app_id deviceType:[NSNumber numberWithInt:DEVICE_TYPE_PUSH]];
 }
 
 + (BOOL)isValidOutcomeEntry:(NSString * _Nonnull)name {

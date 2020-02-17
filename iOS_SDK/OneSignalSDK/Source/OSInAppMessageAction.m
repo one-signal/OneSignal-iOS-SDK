@@ -70,6 +70,12 @@
     else
         action.closesMessage = true; // Default behavior
     
+    if (json[@"outcome"]) {
+        action.outcome = [OSInAppMessageOutcome instanceWithJson:json[@"outcome"]];
+    } else {
+        action.outcome = nil;
+    }
+    
     return action;
 }
 
