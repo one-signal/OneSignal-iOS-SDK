@@ -537,6 +537,9 @@ NSString * const WEIGHT = @"weight";
     params[DEVICE] = deviceType;
 
     params[OUTCOME_ID] = outcome.name;
+    
+    if (outcome.weight && [outcome.weight doubleValue] > 0)
+        params[WEIGHT] = outcome.weight;
 
     request.parameters = params;
     request.method = POST;
