@@ -64,7 +64,8 @@
 
 @implementation OSMessagingController
 
-static long SIX_MONTHS_TIME_SECONDS = 6 * 30 * 24 * 60 * 60;
+// Maximum time decided to save IAM with redisplay on cache - current value: six months in seconds
+static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -149,11 +150,11 @@ static BOOL _isInAppMessagingPaused = false;
  Remove IAMs that the last display time was six month ago
  */
 - (void)deleteOldRedisplayedInAppMessages {
-    NSMutableSet <NSString *> * messagesIdToRemove = [NSMutableSet new];
+    NSMutableSet <NSString *> *messagesIdToRemove = [NSMutableSet new];
     
-    let sixMonthsAgo = self.dateGenerator() - SIX_MONTHS_TIME_SECONDS;
+    let maxCacheTime = self.dateGenerator() - OS_IAM_MAX_CACHE_TIME;
     for (NSString *messageId in _redisplayedInAppMessages) {
-        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < sixMonthsAgo) {
+        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < maxCacheTime) {
             [messagesIdToRemove addObject:messageId];
         }
     }
@@ -362,10 +363,10 @@ static BOOL _isInAppMessagingPaused = false;
  *   - Already displayed
  *   - At least one Trigger has changed
  */
-- (void)makeRedisplayedMessagesAvailableWithTriggers:(NSArray<NSString *> *)newTriggersKeys {
+- (void)evaluateRedisplayedInAppMessages:(NSArray<NSString *> *)newTriggersKeys {
     for (OSInAppMessage *message in _messages) {
         if ([_redisplayedInAppMessages objectForKey:message.messageId] &&
-            [self.triggerController isTriggerOnMessage:message newTriggersKeys:newTriggersKeys]) {
+            [self.triggerController hasSharedTriggers:message newTriggersKeys:newTriggersKeys]) {
               message.isTriggerChanged = true;
         }
     }
@@ -373,12 +374,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    [self makeRedisplayedMessagesAvailableWithTriggers:triggers.allKeys];
+    [self evaluateRedisplayedInAppMessages:triggers.allKeys];
     [self.triggerController addTriggers:triggers];
 }
 
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    [self makeRedisplayedMessagesAvailableWithTriggers:keys];
+    [self evaluateRedisplayedInAppMessages:keys];
     [self.triggerController removeTriggersForKeys:keys];
 }
 
@@ -453,6 +454,11 @@ static BOOL _isInAppMessagingPaused = false;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"persistInAppMessageForRedisplay: %@ \nredisplayedInAppMessages: %@", [message description], [_redisplayedInAppMessages description]]];
 }
 
+- (BOOL)isClickAvailable:(OSInAppMessage *)message withClickId:(NSString *)clickId {
+    // If IAM has redisplay the clickId may be available
+    return !([message.displayStats isRedisplayEnabled] && [message isClickAvailable:clickId]) && [self.clickedClickIds containsObject:clickId];
+}
+
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     // Assign firstClick BOOL based on message being clicked previously or not
     action.firstClick = [message takeActionAsUnique];
@@ -464,14 +470,12 @@ static BOOL _isInAppMessagingPaused = false;
         self.actionClickBlock(action);
   
     let clickId = action.clickId;
-    // If IAM has redisplay the clickId may be available
-    BOOL clickAvailableByRedisplay = [message.displayStats isRedisplayEnabled] && [message isClickAvailable:clickId];
     
     // Make sure no click tracking is performed for IAM previews
     // If the IAM clickId exists within the cached clickedClickIds return early so the click is not tracked
     // unless that click is from an IAM with redisplay
     // Handles body, button, or image clicks
-    if (message.isPreview || (!clickAvailableByRedisplay && [self.clickedClickIds containsObject:clickId]))
+    if (message.isPreview || [self isClickAvailable:message withClickId:clickId])
         return;
     
     // Add clickId to clickedClickIds
