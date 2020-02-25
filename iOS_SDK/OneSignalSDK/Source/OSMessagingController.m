@@ -64,7 +64,7 @@
 
 @implementation OSMessagingController
 
-static long SIX_MONTHS_TIME_SECONDS = 6 * 30 * 24 * 60 * 60;
+static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -149,11 +149,11 @@ static BOOL _isInAppMessagingPaused = false;
  Remove IAMs that the last display time was six month ago
  */
 - (void)deleteOldRedisplayedInAppMessages {
-    NSMutableSet <NSString *> * messagesIdToRemove = [NSMutableSet new];
+    NSMutableSet <NSString *> *messagesIdToRemove = [NSMutableSet new];
     
-    let sixMonthsAgo = self.dateGenerator() - SIX_MONTHS_TIME_SECONDS;
+    let maxCacheTime = self.dateGenerator() - OS_IAM_MAX_CACHE_TIME;
     for (NSString *messageId in _redisplayedInAppMessages) {
-        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < sixMonthsAgo) {
+        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < maxCacheTime) {
             [messagesIdToRemove addObject:messageId];
         }
     }
@@ -362,7 +362,7 @@ static BOOL _isInAppMessagingPaused = false;
  *   - Already displayed
  *   - At least one Trigger has changed
  */
-- (void)makeRedisplayedMessagesAvailableWithTriggers:(NSArray<NSString *> *)newTriggersKeys {
+- (void)evaluateRedisplayedInAppMessages:(NSArray<NSString *> *)newTriggersKeys {
     for (OSInAppMessage *message in _messages) {
         if ([_redisplayedInAppMessages objectForKey:message.messageId] &&
             [self.triggerController isTriggerOnMessage:message newTriggersKeys:newTriggersKeys]) {
@@ -373,12 +373,12 @@ static BOOL _isInAppMessagingPaused = false;
 
 #pragma mark Trigger Methods
 - (void)addTriggers:(NSDictionary<NSString *, id> *)triggers {
-    [self makeRedisplayedMessagesAvailableWithTriggers:triggers.allKeys];
+    [self evaluateRedisplayedInAppMessages:triggers.allKeys];
     [self.triggerController addTriggers:triggers];
 }
 
 - (void)removeTriggersForKeys:(NSArray<NSString *> *)keys {
-    [self makeRedisplayedMessagesAvailableWithTriggers:keys];
+    [self evaluateRedisplayedInAppMessages:keys];
     [self.triggerController removeTriggersForKeys:keys];
 }
 

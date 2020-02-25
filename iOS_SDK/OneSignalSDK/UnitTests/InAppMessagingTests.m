@@ -192,7 +192,7 @@ NSInteger const DELAY = 60;
 }
 
 -(void)testCorrectlyParsedTriggers {
-    XCTAssertTrue(testMessage.triggers.count == 1);
+    XCTAssertEqual(1, testMessage.triggers.count);
     XCTAssertEqual(testMessage.triggers.firstObject.firstObject.operatorType, OSTriggerOperatorTypeEqualTo);
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.kind, @"view_controller");
     XCTAssertEqualObjects(testMessage.triggers.firstObject.firstObject.value, @"home_vc");
