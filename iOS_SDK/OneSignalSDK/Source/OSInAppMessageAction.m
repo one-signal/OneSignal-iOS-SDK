@@ -26,6 +26,7 @@
  */
 
 #import "OSInAppMessageAction.h"
+#import "OSInAppMessagePushPrompt.h"
 
 @implementation OSInAppMessageAction
 
@@ -70,6 +71,12 @@
     else
         action.closesMessage = true; // Default behavior
     
+    if ([json[@"prompt_action"] isKindOfClass:[NSString class]] && [json[@"prompt_action"] isEqualToString:@"push"]) {
+        action.promptAction = [[OSInAppMessagePushPrompt alloc] init];
+    } else {
+        action.promptAction = nil;
+    }
+
     return action;
 }
 

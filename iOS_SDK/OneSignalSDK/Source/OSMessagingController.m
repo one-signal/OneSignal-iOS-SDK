@@ -33,6 +33,7 @@
 #import "OneSignalInternal.h"
 #import "OSInAppMessageAction.h"
 #import "OSInAppMessageController.h"
+#import "OSInAppMessagePrompt.h"
 
 @interface OSMessagingController ()
 
@@ -54,6 +55,8 @@
 @property (strong, nonatomic, nullable) OSHandleInAppMessageActionClickBlock actionClickBlock;
 
 @property (strong, nullable) OSInAppMessageViewController *viewController;
+
+@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*promptAction;
 
 @end
 
@@ -112,7 +115,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.seenInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_SEEN_SET_KEY defaultValue:nil]];
         self.clickedClickIds = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_CLICKED_SET_KEY defaultValue:nil]];
         self.impressionedInAppMessages = [[NSMutableSet alloc] initWithSet:[standardUserDefaults getSavedSetForKey:OS_IAM_IMPRESSIONED_SET_KEY defaultValue:nil]];
-        
+        self.promptAction = nil;
         // BOOL that controls if in-app messaging is paused or not (false by default)
         [self setInAppMessagingPaused:false];
     }
@@ -295,7 +298,6 @@ static BOOL _isInAppMessagingPaused = false;
             // Remove dismissed IAM from messageDisplayQueue
             [self.messageDisplayQueue removeObjectAtIndex:0];
         }
-        
         // Reset the IAM viewController to prepare for next IAM if one exists
         self.viewController = nil;
         // No IAMs are showing currently
@@ -303,24 +305,40 @@ static BOOL _isInAppMessagingPaused = false;
         // Reset time since last IAM
         [self.triggerController timeSinceLastMessage:[NSDate new]];
         
-        if (self.messageDisplayQueue.count > 0) {
-            // Show next IAM in queue
-            [self displayMessage:self.messageDisplayQueue.firstObject];
-            return;
+        if (_promptAction) {
+            [_promptAction handlePrompt:^(BOOL accepted) {
+                self.promptAction = nil;
+                [self evaluateMessageDisplayQueue];
+            }];
         } else {
-            // Hide the window and call makeKeyWindow to ensure the IAM will not be shown
-            self.window.hidden = true;
-            [UIApplication.sharedApplication.delegate.window makeKeyWindow];
-            
-            // Evaulate any IAMs (could be new IAM or added trigger conditions)
-            [self evaluateMessages];
+            [self evaluateMessageDisplayQueue];
         }
+    }
+}
+
+- (void)evaluateMessageDisplayQueue {
+    if (self.messageDisplayQueue.count > 0) {
+        // Show next IAM in queue
+        [self displayMessage:self.messageDisplayQueue.firstObject];
+        return;
+    } else {
+        // Hide the window and call makeKeyWindow to ensure the IAM will not be shown
+        self.window.hidden = true;
+        [UIApplication.sharedApplication.delegate.window makeKeyWindow];
+       
+        // Evaulate any IAMs (could be new IAM or added trigger conditions)
+        [self evaluateMessages];
     }
 }
 
 - (void)messageViewDidSelectAction:(OSInAppMessage *)message withAction:(OSInAppMessageAction *)action {
     // Assign firstClick BOOL based on message being clicked previously or not
     action.firstClick = [message takeActionAsUnique];
+    
+    if (action.promptAction) {
+        self.promptAction = action.promptAction;
+        [self.viewController dismissCurrentInAppMessage];
+    }
     
     if (action.clickUrl)
         [self handleMessageActionWithURL:action];

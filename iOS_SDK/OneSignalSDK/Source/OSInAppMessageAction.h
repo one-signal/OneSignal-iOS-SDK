@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OSJSONHandling.h"
 #import "OneSignal.h"
+#import "OSInAppMessagePrompt.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -46,6 +47,9 @@ typedef NS_ENUM(NSUInteger, OSInAppMessageActionUrlType) {
 
 // The unique identifier for this click
 @property (strong, nonatomic, nonnull) NSString *clickId;
+
+// The prompt action available
+@property (nonatomic, nullable) NSObject<OSInAppMessagePrompt>*promptAction;
 
 // Determines where the URL is loaded, ie. app opens a webview
 @property (nonatomic) OSInAppMessageActionUrlType urlActionType;
