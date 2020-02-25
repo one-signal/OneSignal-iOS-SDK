@@ -64,7 +64,7 @@
 
 @implementation OSMessagingController
 
-static long SIX_MONTHS_TIME_SECONDS = 6 * 30 * 24 * 60 * 60;
+static long OS_IAM_MAX_CACHE_TIME = 6 * 30 * 24 * 60 * 60;
 static OSMessagingController *sharedInstance = nil;
 static dispatch_once_t once;
 + (OSMessagingController *)sharedInstance {
@@ -151,9 +151,9 @@ static BOOL _isInAppMessagingPaused = false;
 - (void)deleteOldRedisplayedInAppMessages {
     NSMutableSet <NSString *> * messagesIdToRemove = [NSMutableSet new];
     
-    let sixMonthsAgo = self.dateGenerator() - SIX_MONTHS_TIME_SECONDS;
+    let maxCacheTime = self.dateGenerator() - OS_IAM_MAX_CACHE_TIME;
     for (NSString *messageId in _redisplayedInAppMessages) {
-        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < sixMonthsAgo) {
+        if ([_redisplayedInAppMessages objectForKey:messageId].displayStats.lastDisplayTime < maxCacheTime) {
             [messagesIdToRemove addObject:messageId];
         }
     }
