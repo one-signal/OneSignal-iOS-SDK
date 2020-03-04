@@ -334,7 +334,7 @@ static BOOL _isInAppMessagingPaused = false;
         return;
     // Add clickId to clickedClickIds
     [self.clickedClickIds addObject:action.clickId];
-   
+
     let metricsRequest = [OSRequestInAppMessageClicked withAppId:OneSignal.app_id
                                                     withPlayerId:OneSignal.currentSubscriptionState.userId
                                                    withMessageId:message.messageId
@@ -356,6 +356,16 @@ static BOOL _isInAppMessagingPaused = false;
                                           // Remove clickId from local clickedClickIds since click was not tracked
                                           [self.clickedClickIds removeObject:action.clickId];
                                       }];
+}
+
+- (void)sendTagCallWithAction:(OSInAppMessageAction *)action {
+    if (action.tags) {
+        OSInAppMessageTag *tag = action.tags;
+        if (tag.tagsToAdd)
+            [OneSignal sendTags:tag.tagsToAdd];
+        if (tag.tagsToRemove)
+            [OneSignal deleteTags:tag.tagsToRemove];
+    }
 }
 
 - (void)sendOutcomes:(NSArray<OSInAppMessageOutcome *>*)outcomes {
@@ -381,7 +391,7 @@ static BOOL _isInAppMessagingPaused = false;
         self.actionClickBlock(action);
     
     [self sendClickRESTCall:message withAction:action];
-    
+    [self sendTagCallWithAction:action];
     [self sendOutcomes:action.outcomes];
 }
 
