@@ -88,6 +88,15 @@
     return displayStats;
 }
 
+-(NSDictionary *)jsonRepresentation {
+    let json = [NSMutableDictionary new];
+
+    json[@"limit"] = @(_displayLimit);
+    json[@"delay"] = @(_displayDelay);
+
+    return json;
+}
+
 - (BOOL)isDelayTimeSatisfied:(NSTimeInterval)date {
     if (_lastDisplayTime < 0) {
         return true;
@@ -113,13 +122,17 @@
     return [NSString stringWithFormat:@"OSInAppMessageDisplayStats:  redisplayEnabled: %@ \nlastDisplayTime: %f  \ndisplayDelay: %f \ndisplayQuantity: %ld \ndisplayLimit: %ld", self.redisplayEnabled ? @"YES" : @"NO", self.lastDisplayTime, self.displayDelay, (long)self.displayQuantity, (long)self.displayLimit];
 }
 
-- (NSDictionary * _Nonnull)jsonRepresentation {
-    let json = [NSMutableDictionary new];
-    
-    json[@"limit"] = @(self.displayLimit);
-    json[@"delay"] = @(self.displayDelay);
-    
-    return json;
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeInteger:_displayQuantity forKey:@"displayQuantity"];
+    [encoder encodeDouble:_lastDisplayTime forKey:@"lastDisplayTime"];
+}
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    if (self = [super init]) {
+        _displayQuantity = [decoder decodeIntegerForKey:@"displayQuantity"];
+        _lastDisplayTime = [decoder decodeDoubleForKey:@"lastDisplayTime"];
+    }
+    return self;
 }
 
 @end
