@@ -94,7 +94,7 @@
 }
 
 + (BOOL)currentPromptAppear {
-    return OSMessagingController.sharedInstance.currentPromptAction.didAppear;
+    return OSMessagingController.sharedInstance.currentPromptAction.hasPrompted;
 }
 
 + (BOOL)isInAppMessageShowing {
