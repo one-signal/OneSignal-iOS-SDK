@@ -848,13 +848,13 @@
 			name = ReceiveReceipts;
 			sourceTree = "<group>";
 		};
-		7AAA606B2485D0D70004FADE /* migration */ = {
+		7AAA606B2485D0D70004FADE /* Migration */ = {
 			isa = PBXGroup;
 			children = (
 				7AAA60652485D0090004FADE /* OSMigrationController.h */,
 				7AAA60672485D0420004FADE /* OSMigrationController.m */,
 			);
-			name = migration;
+			name = Migration;
 			sourceTree = "<group>";
 		};
 		7ABAF9D42457D3160074DFA0 /* Model */ = {
@@ -976,7 +976,7 @@
 		912411EE1E73342200E41FD7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				7AAA606B2485D0D70004FADE /* migration */,
+				7AAA606B2485D0D70004FADE /* Migration */,
 				7AF98632243F84AC00C36EAE /* Influence */,
 				7A674F172360D7DB001F9ACD /* OnFocus */,
 				7ADE379222E8B56F00263048 /* OutcomeEvents */,
