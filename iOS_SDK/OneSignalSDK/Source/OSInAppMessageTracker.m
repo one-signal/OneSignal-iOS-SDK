@@ -86,7 +86,7 @@ THE SOFTWARE.
 }
 
 - (void)cacheState {
-    [self.dataRepository cacheIAMInfluenceType:self.influenceType];
+    [self.dataRepository cacheIAMInfluenceType:self.influenceType == DIRECT ? INDIRECT : self.influenceType];
 }
 
 @end
