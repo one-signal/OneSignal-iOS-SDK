@@ -1918,6 +1918,7 @@ static NSString *_lastnonActiveMessageId;
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
+        onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"display type: %lu", self.notificationDisplayType]);
         [OneSignalHelper handleNotificationReceived:self.notificationDisplayType fromBackground:NO];
     } else {
         // Prevent duplicate calls
@@ -1936,7 +1937,8 @@ static NSString *_lastnonActiveMessageId;
             type = OSNotificationActionTypeActionTaken;
 
         // Call Action Block
-        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:OneSignal.notificationDisplayType];
+        onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"display type: %lu", self.notificationDisplayType]);
+        [OneSignal handleNotificationOpened:messageDict foreground:foreground isActive:isActive actionType:type displayType:self.notificationDisplayType];
     }
 }
 
@@ -2165,7 +2167,7 @@ static NSString *_lastnonActiveMessageId;
     [OneSignal updateDeviceToken:parsedDeviceToken];
 }
     
-+ (BOOL)remoteSilentNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
++ (BOOL)receiveRemoteNotification:(UIApplication*)application UserInfo:(NSDictionary*)userInfo completionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
     var startedBackgroundJob = false;
     
     NSDictionary* richData = nil;
