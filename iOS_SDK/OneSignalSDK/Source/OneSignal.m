@@ -1918,6 +1918,7 @@ static NSString *_lastnonActiveMessageId;
         
         // App is active and a notification was received without inApp display. Display type is none or notification
         // Call Received Block
+        onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"display type: %lu", self.notificationDisplayType]);
         [OneSignalHelper handleNotificationReceived:self.notificationDisplayType fromBackground:NO];
     } else {
         // Prevent duplicate calls
