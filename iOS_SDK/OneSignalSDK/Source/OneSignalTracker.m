@@ -44,6 +44,7 @@
 @interface OneSignal ()
 
 + (void)registerUser;
++ (BOOL)downloadedParameters;
 + (BOOL)sendNotificationTypesUpdate;
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;

@@ -472,7 +472,6 @@ typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
 + (void)setLocationShared:(BOOL)enable;
 + (BOOL)isLocationShared;
 
-
 // Only used for wrapping SDKs, such as Unity, Cordova, Xamarin, etc.
 + (void)setMSDKType:(NSString*)type;
 

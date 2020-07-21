@@ -25,9 +25,9 @@
  * THE SOFTWARE.
  */
 
-#import "DelayedInitializationParameters.h"
+#import "DelayedConsentInitializationParameters.h"
 
-@implementation DelayedInitializationParameters
+@implementation DelayedConsentInitializationParameters
 
 -(instancetype)initWithLaunchOptions:(NSDictionary *)launchOptions withAppId:(NSString *)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock)action withSettings:(NSDictionary *)settings {
     self.launchOptions = launchOptions;

@@ -28,7 +28,7 @@
 #import <Foundation/Foundation.h>
 #import "OneSignal.h"
 
-@interface DelayedInitializationParameters : NSObject
+@interface DelayedConsentInitializationParameters : NSObject
 
 -(instancetype _Nonnull)initWithLaunchOptions:(NSDictionary * _Nullable)launchOptions withAppId:(NSString * _Nullable)appId withHandleNotificationReceivedBlock:(OSHandleNotificationReceivedBlock _Nullable)received withHandleNotificationActionBlock:(OSHandleNotificationActionBlock _Nullable)action withSettings:(NSDictionary * _Nullable)settings;
 
