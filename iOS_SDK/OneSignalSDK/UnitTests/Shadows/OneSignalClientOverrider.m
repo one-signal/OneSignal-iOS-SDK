@@ -55,6 +55,7 @@ static BOOL disableOverride = false;
 static NSMutableArray<OneSignalRequest *> *executedRequests;
 static NSMutableDictionary<NSString *, NSDictionary *> *mockResponses;
 static NSDictionary* iOSParamsOutcomes;
+static NSDictionary* remoteParams;
 
 + (void)load {
     serialMockMainLooper = dispatch_queue_create("com.onesignal.unittest", DISPATCH_QUEUE_SERIAL);
@@ -73,12 +74,15 @@ static NSDictionary* iOSParamsOutcomes;
 }
 
 + (NSDictionary*)iosParamsResponse {
-    return @{
-        @"fba": @true,
-        IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
-        IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
-        OUTCOMES_PARAM : iOSParamsOutcomes
-    };
+    return remoteParams ? remoteParams :
+        @{
+            @"fba": @true,
+            IOS_REQUIRES_EMAIL_AUTHENTICATION : @(requiresEmailAuth),
+            IOS_USES_PROVISIONAL_AUTHORIZATION : @(shouldUseProvisionalAuthorization),
+            OUTCOMES_PARAM : iOSParamsOutcomes,
+            IOS_LOCATION_SHARED : @true,
+            IOS_REQUIRES_USER_PRIVACY_CONSENT : @false
+        };
 }
 
 + (void)enableOutcomes {
@@ -97,6 +101,10 @@ static NSDictionary* iOSParamsOutcomes;
             ENABLED_PARAM: @YES
         }
     };
+}
+
++ (void)setRemoteParamResponse:(NSDictionary *)params {
+    remoteParams = params;
 }
 
 // Calling this function twice results in reversing the swizzle
@@ -258,6 +266,7 @@ static NSDictionary* iOSParamsOutcomes;
     [executedRequests removeAllObjects];
     mockResponses = [NSMutableDictionary new];
     iOSParamsOutcomes = @{};
+    remoteParams = nil;
 }
 
 + (void)setLastHTTPRequest:(NSDictionary*)value {

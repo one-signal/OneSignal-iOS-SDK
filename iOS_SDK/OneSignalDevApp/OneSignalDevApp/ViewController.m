@@ -163,7 +163,6 @@
 
 - (IBAction)locationSharedSegmentedControlValueChanged:(UISegmentedControl *)sender {
     NSLog(@"View controller location sharing status: %i", (int) sender.selectedSegmentIndex);
-    [OneSignal setLocationShared:(bool) sender.selectedSegmentIndex];
 }
 
 - (IBAction)inAppMessagingSegmentedControlValueChanged:(UISegmentedControl *)sender {

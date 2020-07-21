@@ -47,6 +47,7 @@
 #import "OSPermission.h"
 #import "OSNotificationPayload+Internal.h"
 #import "OneSignalUserDefaults.h"
+#import "DelayedInitializationParameters.h"
 
 #import "TestHelperFunctions.h"
 #import "UnitTestAppDelegate.h"
@@ -79,12 +80,13 @@
 #import "OneSignalClientOverrider.h"
 #import "OneSignalCommonDefines.h"
 
-
+@interface OneSignal (TestHelper)
++ (DelayedInitializationParameters *)delayedInitParameters;
+@end
 
 @interface OneSignalHelper (TestHelper)
 + (NSString*)downloadMediaAndSaveInBundle:(NSString*)urlString;
 @end
-
 
 @interface UnitTests : XCTestCase
 
@@ -242,16 +244,28 @@
     [self assertLocationShared_withGrantLocationServices];
 }
 
+- (void)testLocationSharedTrueFromRemoteParams {
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    XCTAssertTrue([OneSignal isLocationShared]);
+}
+
+- (void)testLocationSharedFalseFromRemoteParams {
+    NSMutableDictionary *params = [[OneSignalClientOverrider iosParamsResponse] mutableCopy];
+    [params setObject:@NO forKey:@"location_shared"];
+    [OneSignalClientOverrider setRemoteParamResponse:params];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+
+    XCTAssertFalse([OneSignal isLocationShared]);
+}
+
 - (void)assertLocationShared_withGrantLocationServices {
-    // Set location shared false
-    [OneSignal setLocationShared:false];
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
     XCTAssertFalse([OneSignalLocation lastLocation]);
     
-    // Set location shared true
-    [OneSignal setLocationShared:true];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     // Simulate user granting location services
     [OneSignalLocationOverrider grantLocationServices];
     // Last location should not exist since we are not sharing location
@@ -291,7 +305,6 @@
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
 }
-
 
 - (void)testFocusSettingsOnInit {
     // Test old kOSSettingsKeyInFocusDisplayOption
@@ -416,7 +429,6 @@
     XCTAssertEqual(observer->last.to.accepted, false);
 }
 
-
 - (void)testPermissionObserverDontFireIfNothingChangedAfterAppRestartiOS10 {
     OneSignalHelperOverrider.mockIOSVersion = 10;
     [self sharedPermissionObserverDontFireIfNothingChangedAfterAppRestart];
@@ -509,7 +521,6 @@
     XCTAssertEqual(observer->last.from.subscribed, true);
     XCTAssertEqual(observer->last.to.subscribed, false);
 }
-
 
 - (void)testPermissionChangeObserverWithNativeiOS10PromptCall {
     [UnitTestCommonMethods setCurrentNotificationPermissionAsUnanswered];
@@ -1529,7 +1540,6 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(OneSignalClientOverrider.lastHTTPRequest[@"app_id"], @"override_app_UUID");
 }
 
-
 - (void)testFirstInitWithNotificationsAlreadyDeclined {
     [self backgroundModesDisabledInXcode];
     UNUserNotificationCenterOverrider.notifTypesOverride = 0;
@@ -1593,7 +1603,7 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 3);
 }
 
-- (void) testOnSessionWhenResuming {
+- (void)testOnSessionWhenResuming {
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
     // Don't make an on_session call if only out of the app for 20 secounds
@@ -1614,7 +1624,7 @@ didReceiveRemoteNotification:userInfo
 }
 
 
-- (void) testOnSessionOnColdStart {
+- (void)testOnSessionOnColdStart {
     // 1. Open app
     [UnitTestCommonMethods initOneSignalAndThreadWait];
     
@@ -1933,14 +1943,26 @@ didReceiveRemoteNotification:userInfo
     [NSBundleOverrider setPrivacyState:false];
 }
 
-- (void)testOverridePrivacyState {
-    //since some wrapper SDK's wont use an info.plist, the SDK also provides a method that can also set the privacy consent setting
+- (void)testRequiresPrivacyConsentFromRemoteParams {
+    NSMutableDictionary *params = [[OneSignalClientOverrider iosParamsResponse] mutableCopy];
+    [params setObject:@YES forKey:@"requires_user_privacy_consent"];
+    [OneSignalClientOverrider setRemoteParamResponse:params];
     
-    [OneSignal setRequiresUserPrivacyConsent:true];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
     
-    [self assertUserConsent];
+    XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
+    [OneSignal consentGranted:true];
+    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
+}
+
+- (void)testNoRequiresPrivacyConsentFromRemoteParams {
+    NSMutableDictionary *params = [[OneSignalClientOverrider iosParamsResponse] mutableCopy];
+    [params setObject:@NO forKey:@"requires_user_privacy_consent"];
+    [OneSignalClientOverrider setRemoteParamResponse:params];
     
-    [OneSignal setRequiresUserPrivacyConsent:false];
+    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    
+    XCTAssertFalse([OneSignal requiresUserPrivacyConsent]);
 }
 
 - (void)assertUserConsent {
@@ -1949,7 +1971,7 @@ didReceiveRemoteNotification:userInfo
                             settings:@{kOSSettingsKeyAutoPrompt: @false}];
     
     //indicates initialization was delayed
-    XCTAssertNil(OneSignal.app_id);
+    XCTAssertNotNil([OneSignal delayedInitParameters]);
     
     XCTAssertTrue([OneSignal requiresUserPrivacyConsent]);
     

@@ -74,8 +74,6 @@
                             settings:@{kOSSettingsKeyAutoPrompt: @false,
                                        kOSSettingsKeyInAppLaunchURL: @true}];
     
-//    [OneSignal setLocationShared:false];
-    
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];
 
     [OneSignal addPermissionObserver:self];
@@ -96,7 +94,7 @@
     if (!onesignalAppId)
         onesignalAppId = @"0ba9731b-33bd-43f4-8b59-61172e27447d";
 
-    return onesignalAppId;
+    return @"380dc082-5231-4cc2-ab51-a03da5a0e4c2";
 }
 
 + (void) setOneSignalAppId:(NSString*)onesignalAppId {
