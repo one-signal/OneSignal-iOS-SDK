@@ -74,8 +74,6 @@
                             settings:@{kOSSettingsKeyAutoPrompt: @false,
                                        kOSSettingsKeyInAppLaunchURL: @true}];
     
-//    [OneSignal setLocationShared:false];
-    
     [OneSignal sendTag:@"someKey1122" value:@"03222017"];
 
     [OneSignal addPermissionObserver:self];

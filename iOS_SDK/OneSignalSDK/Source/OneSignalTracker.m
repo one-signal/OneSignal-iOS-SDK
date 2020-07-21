@@ -44,6 +44,7 @@
 @interface OneSignal ()
 
 + (void)registerUser;
++ (BOOL)downloadedParameters;
 + (BOOL)sendNotificationTypesUpdate;
 + (BOOL)clearBadgeCount:(BOOL)fromNotifOpened;
 + (NSString*)mUserId;
@@ -81,6 +82,10 @@ static BOOL lastOnFocusWasToBackground = YES;
 }
 
 + (void)onFocus:(BOOL)toBackground {
+    // Privacy consent can be set by remote params, need to wait until they are set
+    if (![OneSignal downloadedParameters])
+        return;
+
     // return if the user has not granted privacy permissions
     if ([OneSignal requiresUserPrivacyConsent])
         return;

@@ -48,5 +48,7 @@
 +(void)disableExecuteRequestOverride:(BOOL)disable;
 +(NSArray<OneSignalRequest *> *)executedRequests;
 + (void)setMockResponseForRequest:(NSString *)request withResponse:(NSDictionary *)response;
++ (NSDictionary*)iosParamsResponse;
++ (void)setRemoteParamResponse:(NSDictionary *)params;
 @end
 

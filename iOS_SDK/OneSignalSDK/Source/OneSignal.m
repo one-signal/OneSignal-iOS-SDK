@@ -137,7 +137,6 @@ static BOOL coldStartFromTapOnNotification = NO;
 
 static BOOL shouldDelaySubscriptionUpdate = false;
 
-
 /*
     if setEmail: was called before the device was registered (push playerID = nil),
     then the call to setEmail: also gets delayed
@@ -161,13 +160,12 @@ static BOOL backgroundModesEnabled = false;
 
 static BOOL promptBeforeOpeningPushURLs = false;
 
-
-// Indicates if initialization of the SDK has been delayed until the user gives privacy consent
-static BOOL delayedInitializationForPrivacyConsent = false;
-
 // If initialization is delayed, this object holds params such as the app ID so that the init()
 // method can be called the moment the user provides privacy consent.
-DelayedInitializationParameters *delayedInitParameters;
+DelayedInitializationParameters *_delayedInitParameters;
++ (DelayedInitializationParameters *)delayedInitParameters {
+    return _delayedInitParameters;
+}
 
 // Ensure we only initlize the SDK once even if the public method is called more.
 static BOOL initDone;
@@ -180,11 +178,6 @@ static NSTimeInterval reattemptRegistrationInterval = REGISTRATION_DELAY_SECONDS
 // Set when the app is launched
 static NSDate *sessionLaunchTime;
 
-//the iOS Native SDK will use the plist flag to enable privacy consent
-//however wrapper SDK's will use a method call before initialization
-//this boolean flag is switched on to enable this behavior
-static BOOL shouldRequireUserConsent = false;
-
 static OneSignalTrackIAP* trackIAPPurchase;
 static NSString* app_id;
 NSString* emailToSet;
@@ -195,7 +188,6 @@ static int mSubscriptionStatus = -1;
 
 OSIdsAvailableBlock idsAvailableBlockWhenReady;
 BOOL disableBadgeClearing = NO;
-BOOL mShareLocation = YES;
 BOOL requestedProvisionalAuthorization = false;
 BOOL usesAutoPrompt = false;
 
@@ -513,32 +505,32 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
                    settings:(NSDictionary*)settings {
     
     [self onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"Called init with app ID: %@", appId]];
-    
+    _delayedInitParameters = nil;
+
     [OneSignalHelper setNotificationActionBlock:actionCallback];
     [OneSignalHelper setNotificationReceivedBlock:receivedCallback];
+
+    // Wrapper SDK's call init twice and pass null as the appId on the first call
+    //  the app ID is required to download parameters, so do not download params until the appID is provided
+    let success = [self initAppId:appId withSettings:settings];
+    if (!success)
+        return self;
     
-    if ([self requiresUserPrivacyConsent]) {
-        delayedInitializationForPrivacyConsent = true;
-        delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
+    if ([self requiresUserPrivacyConsent] || !_downloadedParameters) {
+        _delayedInitParameters = [[DelayedInitializationParameters alloc] initWithLaunchOptions:launchOptions
                                                                                      withAppId:appId
                                                            withHandleNotificationReceivedBlock:receivedCallback
                                                              withHandleNotificationActionBlock:actionCallback
                                                                                   withSettings:settings];
         [self onesignal_Log:ONE_S_LL_VERBOSE message:@"Delayed initialization of the OneSignal SDK until the user provides privacy consent using the consentGranted() method"];
+        
+        if (!_didCallDownloadParameters)
+            [self downloadIOSParamsWithAppId:app_id];
         return self;
     }
     
     [OneSignalCacheCleaner cleanCachedUserData];
     [OneSignal checkIfApplicationImplementsDeprecatedMethods];
-    
-    let success = [self initAppId:appId withSettings:settings];
-    if (!success)
-        return self;
-    
-    // Wrapper SDK's call init twice and pass null as the appId on the first call
-    //  the app ID is required to download parameters, so do not download params until the appID is provided
-    if (!_didCallDownloadParameters && appId && appId != (id)[NSNull null])
-        [self downloadIOSParamsWithAppId:appId];
     
     let standardUserDefaults = OneSignalUserDefaults.initStandard;
     [self initSettings:settings withStandardUserDefaults:standardUserDefaults];
@@ -553,7 +545,7 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
     _sessionManager = [[OneSignalSessionManager alloc] init:self];
     _outcomeEventsController = [[OneSignalOutcomeEventsController alloc] init:self.sessionManager];
     
-    if (appId && mShareLocation)
+    if (appId && [self isLocationShared])
        [OneSignalLocation getLocation:false fallbackToSettings:false withCompletionHandler:nil];
     
     /*
@@ -618,16 +610,16 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
         }
     }
     
+    let sharedUserDefaults = OneSignalUserDefaults.initShared;
     // Handle changes to the app id, this might happen on a developer's device when testing
     // Will also run the first time OneSignal is initialized
     if (app_id && ![app_id isEqualToString:prevAppId]) {
         initDone = false;
         _downloadedParameters = false;
         _didCallDownloadParameters = false;
-        let sharedUserDefaults = OneSignalUserDefaults.initShared;
-        
+    
         [standardUserDefaults saveStringForKey:OSUD_APP_ID withValue:app_id];
-        
+
         // Remove player_id from both standard and shared NSUserDefaults
         [standardUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
         [sharedUserDefaults removeValueForKey:OSUD_PLAYER_ID_TO];
@@ -749,16 +741,12 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 }
 
 + (void)setRequiresUserPrivacyConsent:(BOOL)required {
-    shouldRequireUserConsent = required;
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT withValue:required];
 }
 
 + (BOOL)requiresUserPrivacyConsent {
-    
-    // if the plist key does not exist default to true
-    // the plist value specifies whether GDPR privacy consent is required for this app
-    // if required and consent has not been previously granted, return false
-    let requiresConsent = [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_REQUIRE_PRIVACY_CONSENT] boolValue] ?: false;
-    if (requiresConsent || shouldRequireUserConsent)
+    let shouldRequireUserConsent = [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_REQUIRES_USER_PRIVACY_CONSENT defaultValue:YES];
+    if (shouldRequireUserConsent)
         return ![OneSignalUserDefaults.initStandard getSavedBoolForKey:GDPR_CONSENT_GRANTED defaultValue:false];
     
     return false;
@@ -767,12 +755,15 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 + (void)consentGranted:(BOOL)granted {
     [OneSignalUserDefaults.initStandard saveBoolForKey:GDPR_CONSENT_GRANTED withValue:granted];
     
-    if (!granted || !delayedInitializationForPrivacyConsent || delayedInitParameters == nil)
+    if (!granted || _delayedInitParameters == nil)
         return;
-    
-    [self initWithLaunchOptions:delayedInitParameters.launchOptions appId:delayedInitParameters.appId handleNotificationReceived:delayedInitParameters.receivedBlock handleNotificationAction:delayedInitParameters.actionBlock settings:delayedInitParameters.settings];
-    delayedInitializationForPrivacyConsent = false;
-    delayedInitParameters = nil;
+
+    [self initWithDelayParams];
+}
+
++ (void)initWithDelayParams {
+    if (_delayedInitParameters)
+        [self initWithLaunchOptions:_delayedInitParameters.launchOptions appId:_delayedInitParameters.appId handleNotificationReceived:_delayedInitParameters.receivedBlock handleNotificationAction:_delayedInitParameters.actionBlock settings:_delayedInitParameters.settings];
 }
 
 // the iOS SDK used to call these selectors as a convenience but has stopped due to concerns about private API usage
@@ -808,11 +799,18 @@ static OneSignalOutcomeEventsController* _outcomeEventsController;
 
         if (result[IOS_RECEIVE_RECEIPTS_ENABLE] != (id)[NSNull null])
             [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_RECEIVE_RECEIPTS_ENABLED withValue:[result[IOS_RECEIVE_RECEIPTS_ENABLE] boolValue]];
+        
+        if (result[IOS_LOCATION_SHARED])
+            [OneSignal setLocationShared:[result[IOS_LOCATION_SHARED] boolValue]];
+        
+        if (result[IOS_REQUIRES_USER_PRIVACY_CONSENT])
+            [OneSignal setRequiresUserPrivacyConsent:[result[IOS_REQUIRES_USER_PRIVACY_CONSENT] boolValue]];
 
         [OSOutcomesUtils saveOutcomeParamsForApp:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
         
         _downloadedParameters = true;
+        [self initWithDelayParams];
     } onFailure:^(NSError *error) {
         _didCallDownloadParameters = false;
     }];
@@ -1384,11 +1382,10 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
         [OneSignal sendNotificationTypesUpdate];
 }
 
-
 + (void)setLocationShared:(BOOL)enable {
-    mShareLocation = enable;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLocationShared called with status: %d", (int) enable]];
-    
+    [OneSignalUserDefaults.initShared saveBoolForKey:OSUD_LOCATION_ENABLED withValue:enable];
+
     if (!enable) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLocationShared set false, clearing last location!"];
         [OneSignalLocation clearLastLocation];
@@ -1408,7 +1405,7 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 }
 
 + (BOOL)isLocationShared {
-    return mShareLocation;
+    return [OneSignalUserDefaults.initShared getSavedBoolForKey:OSUD_LOCATION_ENABLED defaultValue:YES];;
 }
 
 + (void)handleDidFailRegisterForRemoteNotification:(NSError*)err {
@@ -1654,7 +1651,7 @@ static dispatch_queue_t serialQueue;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
     
     
-    if (mShareLocation && [OneSignalLocation lastLocation]) {
+    if ([self isLocationShared] && [OneSignalLocation lastLocation]) {
         [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Attaching device location to 'on_session' request payload"];
         dataDic[@"lat"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.latitude];
         dataDic[@"long"] = [NSNumber numberWithDouble:[OneSignalLocation lastLocation]->cords.longitude];
