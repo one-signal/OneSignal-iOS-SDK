@@ -32,8 +32,8 @@ static OneSignalLifecycleObserver* _instance = nil;
     // Replacing swizzled lifecycle selectors with notification center observers for scene based Apps
     if (@available(iOS 13.0, *)) {
         NSDictionary *sceneManifest = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
-        [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
         if (sceneManifest) {
+            [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registering for Scene Lifecycle notifications"];
             [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didEnterBackground) name:UISceneDidEnterBackgroundNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(didBecomeActive) name:UISceneDidActivateNotification object:nil];
             [[NSNotificationCenter defaultCenter] addObserver:[OneSignalLifecycleObserver sharedInstance] selector:@selector(willResignActive) name:UISceneWillDeactivateNotification object:nil];

@@ -215,14 +215,37 @@ static XCTestCase* _currentXCTestCase;
 
 + (void)foregroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateActive;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationDidBecomeActive:sharedApp];
+    
+    if (@available(iOS 13.0, *)) {
+        NSDictionary *sceneManifest = [[NSBundle bundleForClass:[OneSignal class]] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+        if (sceneManifest) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidActivateNotification object:nil];
+            return;
+        }
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
 + (void)backgroundApp {
     UIApplicationOverrider.currentUIApplicationState = UIApplicationStateBackground;
-    UIApplication *sharedApp = [UIApplication sharedApplication];
-    [sharedApp.delegate applicationWillResignActive:sharedApp];
+    if (@available(iOS 13.0, *)) {
+        NSDictionary *sceneManifest = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIApplicationSceneManifest"];
+        if (sceneManifest) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneWillDeactivateNotification object:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:UISceneDidEnterBackgroundNotification object:nil];
+            return;
+        }
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationWillResignActiveNotification object:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:UIApplicationDidEnterBackgroundNotification object:nil];
+}
+
+//Call this method before init OneSignal. Make sure not to overwrite the NSBundleDictionary in later calls.
++ (void)useSceneLifecycle:(BOOL)useSceneLifecycle {
+    NSMutableDictionary *currentBundleDictionary = [[NSMutableDictionary alloc] initWithDictionary:NSBundleOverrider.nsbundleDictionary];
+    if (useSceneLifecycle)
+        [currentBundleDictionary setObject:@[@"SceneDelegate"] forKey:@"UIApplicationSceneManifest"];
+    NSBundleOverrider.nsbundleDictionary = currentBundleDictionary;
 }
 
 + (void)setCurrentNotificationPermission:(BOOL)accepted {
