@@ -1628,12 +1628,12 @@ static dispatch_queue_t serialQueue;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:waitingForApnsResponse: %d", waitingForApnsResponse]];
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"registerUser:initializationTime: %@", initializationTime]];
     
-    if (!waitingForApnsResponse)
-        return false;
-    
-    // If there isn't a initializationTime yet then the SDK hasn't finished initializing so we should delay
+    // If there isn't an initializationTime yet then the SDK hasn't finished initializing so we should delay
     if (!initializationTime)
         return true;
+    
+    if (!waitingForApnsResponse)
+        return false;
     
     return [[NSDate date] timeIntervalSinceDate:initializationTime] < maxApnsWait;
 }
