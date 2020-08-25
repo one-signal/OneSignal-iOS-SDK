@@ -1586,7 +1586,7 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
 }
 
 + (void)registerUserAfterDelay {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserNow"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"registerUserAfterDelay"];
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(registerUser) object:nil];
     [OneSignalHelper performSelector:@selector(registerUser) onMainThreadOnObject:self withObject:nil afterDelay:reattemptRegistrationInterval];
 }
