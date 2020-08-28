@@ -167,9 +167,9 @@ static NSDictionary* appSettings;
 // Make sure launchOptions have been set
 // We need this BOOL because launchOptions can be null so simply null checking
 //  won't validate whether or not launchOptions have been set
-static BOOL hasSetLaunchOptions = false;
+static BOOL hasInitWithLaunchOptions = false;
 // Ensure we only initlize the SDK once even if the public method is called more
-// Called after successfully calling setAppId and setLaunchOptions
+// Called after successfully calling setAppId and init:LaunchOptions
 static BOOL initDone = false;
 
 //used to ensure registration occurs even if APNS does not respond
@@ -451,7 +451,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appId = nil;
     launchOptions = false;
     appSettings = nil;
-    hasSetLaunchOptions = false;
+    hasInitWithLaunchOptions = false;
     initDone = false;
     usesAutoPrompt = false;
     requestedProvisionalAuthorization = false;
@@ -502,7 +502,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 /*
- 1/2 steps in OneSignal init, relying on setLaunchOptions (usage order does not matter)
+ 1/2 steps in OneSignal init, relying on init:LaunchOptions (usage order does not matter)
  Sets the app id OneSignal should use in the application
  This is should be set from all OneSignal entry points
  */
@@ -521,8 +521,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     appId = newAppId;
 
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setAppId(id) finished, checking if launchOptions has been set before proceeding...!"];
-    if (!hasSetLaunchOptions) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call setLaunchOptions(launchOptions) to complete OneSignal init!"];
+    if (!hasInitWithLaunchOptions) {
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"appId set, but please call init:(launchOptions) to complete OneSignal init!"];
         return;
     }
 
@@ -536,12 +536,12 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
  Method must be called to successfully init OneSignal
  */
 + (void)init:(nullable NSDictionary*)newLaunchOptions {
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"setLaunchOptions() called with launchOptions: %@!", launchOptions.description]];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:[NSString stringWithFormat:@"init:launchOptions called with launchOptions: %@!", launchOptions.description]];
 
     launchOptions = newLaunchOptions;
-    hasSetLaunchOptions = true;
+    hasInitWithLaunchOptions = true;
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(id) finished, checking if appId has been set before proceeding...!"];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"init:launchOptions finished, checking if appId has been set before proceeding...!"];
     if (!appId || appId.length == 0) {
         // Read from .plist if not passed in with this method call
         appId = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"OneSignal_APPID"];
@@ -563,7 +563,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         }
     }
 
-    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"setLaunchOptions(launchOptions) successful and appId is set, initializing OneSignal..."];
+    [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"init:launchOptions successful and appId is set, initializing OneSignal..."];
     [self init];
 }
 
@@ -587,7 +587,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 }
 
 /*
- Called after setAppId and setLaunchOptions, depending on which one is called last (order does not matter)
+ Called after setAppId and init:launchOptions, depending on which one is called last (order does not matter)
  */
 + (void)init {
     [[OSMigrationController new] migrate];
