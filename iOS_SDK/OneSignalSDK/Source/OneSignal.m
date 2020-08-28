@@ -320,11 +320,8 @@ static ObservableEmailSubscriptionStateChangesType* _emailSubscriptionStateChang
     mSubscriptionStatus = [status intValue];
 }
 
-static OSDevice* _userDevice;
 + (OSDevice *)getUserDevice {
-    if (!_userDevice)
-        _userDevice = [OSDevice new];
-    return _userDevice;
+    return [OSDevice new];
 }
 
 /*
