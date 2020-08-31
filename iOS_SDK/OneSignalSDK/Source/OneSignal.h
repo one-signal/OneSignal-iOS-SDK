@@ -264,7 +264,7 @@ typedef NS_ENUM(NSUInteger, OSNotificationDisplayType) {
 
 typedef void (^OSNotificationDisplayTypeResponse)(OSNotificationDisplayType displayType);
 /* OneSignal Influence Types */
-typedef NS_ENUM(NSUInteger, Session) {
+typedef NS_ENUM(NSUInteger, OSSession) {
     DIRECT,
     INDIRECT,
     UNATTRIBUTED,
@@ -279,7 +279,7 @@ typedef NS_ENUM(NSUInteger, OSInfluenceChannel) {
 @interface OSOutcomeEvent : NSObject
 
 // Session enum (DIRECT, INDIRECT, UNATTRIBUTED, or DISABLED) to determine code route and request params
-@property (nonatomic) Session session;
+@property (nonatomic) OSSession session;
 
 // Notification ids for the current session
 @property (strong, nonatomic, nullable) NSArray *notificationIds;
@@ -325,8 +325,8 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 
 @interface OSPermissionStateChanges : NSObject
 
-@property (readonly, nullable) OSPermissionState* to;
-@property (readonly, nullable) OSPermissionState* from;
+@property (readonly, nonnull) OSPermissionState* to;
+@property (readonly, nonnull) OSPermissionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 
 @end
@@ -354,14 +354,14 @@ typedef NS_ENUM(NSInteger, OSNotificationPermission) {
 @end
 
 @interface OSSubscriptionStateChanges : NSObject
-@property (readonly, nullable) OSSubscriptionState* to;
-@property (readonly, nullable) OSSubscriptionState* from;
+@property (readonly, nonnull) OSSubscriptionState* to;
+@property (readonly, nonnull) OSSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
 @interface OSEmailSubscriptionStateChanges : NSObject
-@property (readonly, nullable) OSEmailSubscriptionState* to;
-@property (readonly, nullable) OSEmailSubscriptionState* from;
+@property (readonly, nonnull) OSEmailSubscriptionState* to;
+@property (readonly, nonnull) OSEmailSubscriptionState* from;
 - (NSDictionary* _Nonnull)toDictionary;
 @end
 
@@ -469,7 +469,7 @@ extern NSString* const ONESIGNAL_VERSION;
 
 #pragma mark Initialization
 + (void)setAppId:(NSString* _Nonnull)newAppId;
-+ (void)setLaunchOptions:(NSDictionary* _Nullable)launchOptions;
++ (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 // TODO: Remove before releasing major release 3.0.0
 + (void)setAppSettings:(NSDictionary* _Nonnull)settings;
 
