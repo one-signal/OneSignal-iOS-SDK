@@ -752,7 +752,7 @@
     [UIApplicationOverrider setBlockApnsResponse:true];
     
     // 3. Init OneSignal
-    [UnitTestCommonMethods initOneSignalAndThreadWait];
+    [UnitTestCommonMethods initOneSignal_andThreadWait];
     [NSObjectOverrider runPendingSelectors];
     
     // 4. Don't make a network call right away
