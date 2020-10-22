@@ -66,8 +66,8 @@
 #define OSUD_PLAYER_ID_FROM                                                 @"GT_PLAYER_ID_LAST"                                                // * OSUD_PLAYER_ID_FROM
 #define OSUD_PUSH_TOKEN_TO                                                  @"GT_DEVICE_TOKEN"                                                  // * OSUD_PUSH_TOKEN_TO
 #define OSUD_PUSH_TOKEN_FROM                                                @"GT_DEVICE_TOKEN_LAST"                                             // * OSUD_PUSH_TOKEN_FROM
-#define OSUD_USER_SUBSCRIPTION_TO                                           @"ONESIGNAL_SUBSCRIPTION"                                           // * OSUD_USER_SUBSCRIPTION_TO
-#define OSUD_USER_SUBSCRIPTION_FROM                                         @"ONESIGNAL_SUBSCRIPTION_SETTING"                                   // * OSUD_USER_SUBSCRIPTION_FROM
+#define OSUD_PUSH_DISABLED_TO                                               @"ONESIGNAL_PUSH_DISABLED"                                          // * OSUD_PUSH_DISABLED_TO
+#define OSUD_PUSH_DISABLED_FROM                                             @"ONESIGNAL_PUSH_DISABLED_LAST"                                     // * OSUD_PUSH_DISABLED_FROM
 // Email
 #define OSUD_EMAIL_ADDRESS                                                  @"EMAIL_ADDRESS"                                                    // * OSUD_EMAIL_ADDRESS
 #define OSUD_EMAIL_PLAYER_ID                                                @"GT_EMAIL_PLAYER_ID"                                               // * OSUD_EMAIL_PLAYER_ID

@@ -1384,13 +1384,13 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message) {
 
     NSString* value = nil;
     if (disable)
-        value = @"no";
+        value = @"yes";
     
-    [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_USER_SUBSCRIPTION_TO withValue:value];
+    [OneSignalUserDefaults.initStandard saveObjectForKey:OSUD_PUSH_DISABLED_TO withValue:value];
     
     shouldDelaySubscriptionUpdate = true;
     
-    self.currentSubscriptionState.userSubscriptionSetting = !disable;
+    self.currentSubscriptionState.isPushDisabled = disable;
     
     if (appId)
         [OneSignal sendNotificationTypesUpdate];
@@ -2096,7 +2096,7 @@ static NSString *_lastnonActiveMessageId;
     if (!permissionStatus.provisional && !permissionStatus.answeredPrompt)
         return ERROR_PUSH_PROMPT_NEVER_ANSWERED;
     
-    if (!self.currentSubscriptionState.userSubscriptionSetting)
+    if (self.currentSubscriptionState.isPushDisabled)
         return -2;
 
     return permissionStatus.notificationTypes;
