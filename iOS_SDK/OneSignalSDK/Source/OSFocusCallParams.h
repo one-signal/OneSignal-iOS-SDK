@@ -33,6 +33,7 @@
 @property (nonatomic, readonly) NSString *userId;
 @property (nonatomic, readonly) NSString *emailUserId;
 @property (nonatomic, readonly) NSString *emailAuthToken;
+@property (nonatomic, readonly) NSString *externalIdAuthToken;
 @property (nonatomic, readonly) NSNumber *netType;
 @property (nonatomic, readonly) NSArray<OSFocusInfluenceParam *> *influenceParams;
 @property (nonatomic, readonly) NSTimeInterval timeElapsed;
@@ -42,6 +43,7 @@
                    userId:(NSString *)userId
               emailUserId:(NSString *)emailUserId
            emailAuthToken:(NSString *)emailAuthToken
+      externalIdAuthToken:(NSString *)externalIdAuthToken
                   netType:(NSNumber *)netType
               timeElapsed:(NSTimeInterval)timeElapsed
           influenceParams:(NSArray<OSFocusInfluenceParam *> *)influenceParams
