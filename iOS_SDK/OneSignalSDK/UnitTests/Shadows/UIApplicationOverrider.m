@@ -38,13 +38,14 @@ static BOOL calledCurrentUserNotificationSettings;
 
 static NSInteger didFailRegistarationErrorCode;
 static BOOL shouldFireDeviceToken;
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 static UIApplicationState currentUIApplicationState;
 
 static UILocalNotification* lastUILocalNotification;
 
 static UIUserNotificationSettings* lastUIUserNotificationSettings;
-
+#pragma clang diagnostic pop
 static BOOL pendingRegisterBlock;
 
 //mimics no response from APNS
@@ -82,11 +83,12 @@ static UIApplication *sharedApplication;
 + (void)setCurrentUIApplicationState:(UIApplicationState)value {
     currentUIApplicationState = value;
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 + (UILocalNotification*)lastUILocalNotification {
     return lastUILocalNotification;
 }
-
+#pragma clang diagnostic pop
 + (BOOL)calledRegisterForRemoteNotifications {
     return calledRegisterForRemoteNotifications;
 }
@@ -164,7 +166,8 @@ static UIApplication *sharedApplication;
     calledRegisterForRemoteNotifications = true;
     [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
 }
-
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated"
 - (void)overrideRegisterForRemoteNotificationTypes: (UIUserNotificationType) types {
     //empty
 }
@@ -193,7 +196,7 @@ static UIApplication *sharedApplication;
 - (void)overrideScheduleLocalNotification:(UILocalNotification*)notification {
     lastUILocalNotification = notification;
 }
-
+#pragma clang diagnostic pop
 - (void)overrideOpenURL:(NSURL*)url options:(NSDictionary<UIApplicationOpenURLOptionsKey, id> *)options completionHandler:(void (^ __nullable)(BOOL success))completion {
     lastOpenedUrl = url;
 }

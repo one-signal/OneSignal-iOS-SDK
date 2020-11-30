@@ -38,8 +38,10 @@
 
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     OSPermissionState* status = OneSignal.currentPermissionState;
-    
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated"
     status.notificationTypes = (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
+    #pragma clang diagnostic pop
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO defaultValue:false];
     status.provisional = false;
@@ -58,7 +60,10 @@
 }
 
 - (int)getNotificationTypes {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Wdeprecated"
     return (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
+    #pragma clang diagnostic pop
 }
 
 #pragma GCC diagnostic push
