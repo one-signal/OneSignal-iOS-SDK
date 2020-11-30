@@ -39,7 +39,7 @@
 - (void)getNotificationPermissionState:(void (^)(OSPermissionState *subscriptionStatus))completionHandler {
     OSPermissionState* status = OneSignal.currentPermissionState;
     
-    status.notificationTypes = UIApplication.sharedApplication.currentUserNotificationSettings.types;
+    status.notificationTypes = (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
     status.accepted = status.notificationTypes > 0;
     status.answeredPrompt = [OneSignalUserDefaults.initStandard getSavedBoolForKey:OSUD_WAS_NOTIFICATION_PROMPT_ANSWERED_TO defaultValue:false];
     status.provisional = false;
@@ -57,8 +57,8 @@
     return returnStatus;
 }
 
-- (int) getNotificationTypes {
-    return UIApplication.sharedApplication.currentUserNotificationSettings.types;
+- (int)getNotificationTypes {
+    return (int)UIApplication.sharedApplication.currentUserNotificationSettings.types;
 }
 
 #pragma GCC diagnostic push
@@ -86,6 +86,11 @@
     OneSignal.currentPermissionState.accepted = accepted;
     OneSignal.currentPermissionState.answeredPrompt = true;
 }
+
+- (void)registerForProvisionalAuthorization:(OSUserResponseBlock)block {
+    //empty implementation
+}
+
 
 #pragma GCC diagnostic pop
 
