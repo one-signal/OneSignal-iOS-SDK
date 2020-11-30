@@ -83,7 +83,7 @@
 		7A1232A9235E17B0002B6CE3 /* OSSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */; };
 		7A1232AA235E17B4002B6CE3 /* OSSessionManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A12EBD623060A6F005C4FA5 /* OSSessionManager.h */; };
 		7A1232AB235E17B8002B6CE3 /* OneSignalOutcomeEventsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7ADE379322E8B69C00263048 /* OneSignalOutcomeEventsController.m */; };
-		7A1232B2235E1BE6002B6CE3 /* OneSignalUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AD8DDE6234BD3BE00747A8A /* OneSignalUserDefaults.m */; };
+		7A1232B2235E1BE6002B6CE3 /* OneSignalUserDefaults.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AD8DDE6234BD3BE00747A8A /* OneSignalUserDefaults.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		7A12EBD723060A6F005C4FA5 /* OSSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */; };
 		7A12EBDD23060B37005C4FA5 /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
 		7A1F2D8F2406EFC5007799A9 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
@@ -106,12 +106,12 @@
 		7A72EB1223E252DD00B4D50F /* OSInAppMessageDisplayStats.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A72EB1123E252D400B4D50F /* OSInAppMessageDisplayStats.h */; };
 		7A880F2B23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
 		7A880F2C23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
-		7A880F2D23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; };
+		7A880F2D23FB45FB0081F5E8 /* OSInAppMessageOutcome.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F2A23FB45FB0081F5E8 /* OSInAppMessageOutcome.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		7A880F312404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F322404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A880F332404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A880F302404AE7B0081F5E8 /* OSInAppMessagePushPrompt.m */; };
 		7A9173A2231971E5007848FA /* OneSignalReceiveReceiptsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A9173A1231971E5007848FA /* OneSignalReceiveReceiptsController.m */; };
-		7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */; };
+		7A94D8E1249ABF0000E90B40 /* OSUniqueOutcomeNotification.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A94D8E0249ABF0000E90B40 /* OSUniqueOutcomeNotification.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		7AA2848A2406FC6400C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AA2848B2406FC6500C25D76 /* OSInAppMessageTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A1F2D8E2406EFC5007799A9 /* OSInAppMessageTag.m */; };
 		7AAA60662485D0310004FADE /* OSMigrationController.h in Headers */ = {isa = PBXBuildFile; fileRef = 7AAA60652485D0090004FADE /* OSMigrationController.h */; };
@@ -149,8 +149,8 @@
 		7AF5174824FDC2C500B076BC /* OSRemoteParamController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174624FDC2C500B076BC /* OSRemoteParamController.m */; };
 		7AF5174924FDC2C500B076BC /* OSRemoteParamController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174624FDC2C500B076BC /* OSRemoteParamController.m */; };
 		7AF5174C24FE980400B076BC /* RemoteParamsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF5174B24FE980400B076BC /* RemoteParamsTests.m */; };
-		7AF8FDBB2332A58900A19245 /* OSSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */; };
-		7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; };
+		7AF8FDBB2332A58900A19245 /* OSSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBD523060A6F005C4FA5 /* OSSessionManager.m */; settings = {COMPILER_FLAGS = "-w"; }; };
+		7AF8FDBD2332A5C200A19245 /* OSIndirectInfluence.m in Sources */ = {isa = PBXBuildFile; fileRef = 7A12EBDC23060B37005C4FA5 /* OSIndirectInfluence.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		7AF986352444C41A00C36EAE /* OSChannelTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986342444C41A00C36EAE /* OSChannelTracker.m */; };
 		7AF986362444C41A00C36EAE /* OSChannelTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986342444C41A00C36EAE /* OSChannelTracker.m */; };
 		7AF986372444C41A00C36EAE /* OSChannelTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 7AF986342444C41A00C36EAE /* OSChannelTracker.m */; };
@@ -2087,8 +2087,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = NO;
 				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -2097,6 +2101,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = OS_TEST;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				INFOPLIST_FILE = UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -2241,8 +2246,12 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ENABLE_MODULES = YES;
+				CLANG_WARN_BOOL_CONVERSION = NO;
+				CLANG_WARN_CONSTANT_CONVERSION = NO;
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_ENUM_CONVERSION = NO;
 				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = NO;
 				CLANG_WARN_SUSPICIOUS_MOVES = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -2251,6 +2260,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = OS_TEST;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				INFOPLIST_FILE = UnitTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -2348,6 +2358,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.UnitTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -2396,6 +2407,7 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = NO;
+				OTHER_CFLAGS = "-fembed-bitcode";
 				PRODUCT_BUNDLE_IDENTIFIER = com.onesignal.example.UnitTestApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
