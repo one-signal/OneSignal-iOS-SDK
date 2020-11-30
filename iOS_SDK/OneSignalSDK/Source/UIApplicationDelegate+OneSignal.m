@@ -158,7 +158,7 @@ static NSArray* delegateSubclasses = nil;
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"oneSignalDidRegisterUserNotifications:settings:"];
     
     if ([OneSignal appId])
-        [OneSignal updateNotificationTypes:notificationSettings.types];
+        [OneSignal updateNotificationTypes:(int)notificationSettings.types];
     
     if ([self respondsToSelector:@selector(oneSignalDidRegisterUserNotifications:settings:)])
         [self oneSignalDidRegisterUserNotifications:application settings:notificationSettings];

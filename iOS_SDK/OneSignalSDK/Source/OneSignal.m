@@ -857,7 +857,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         [[self getRemoteParamController] saveRemoteParams:result];
 
         if (result[OUTCOMES_PARAM] && result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE])
-            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
+            [_outcomeEventsCache saveOutcomesV2ServiceEnabled:(BOOL)result[OUTCOMES_PARAM][IOS_OUTCOMES_V2_SERVICE_ENABLE]];
 
         [OneSignal.trackerFactory saveInfluenceParams:result];
         [OneSignalTrackFirebaseAnalytics updateFromDownloadParams:result];
@@ -1673,7 +1673,7 @@ static dispatch_queue_t serialQueue;
     
     let releaseMode = [OneSignalMobileProvision releaseMode];
     if (releaseMode == UIApplicationReleaseDev || releaseMode == UIApplicationReleaseAdHoc || releaseMode == UIApplicationReleaseWildcard)
-        dataDic[@"test_type"] = [NSNumber numberWithInt:releaseMode];
+        dataDic[@"test_type"] = [NSNumber numberWithInt:(int)releaseMode];
     
     NSArray* nowProcessingCallbacks;
     
@@ -2754,6 +2754,8 @@ static NSString *_lastnonActiveMessageId;
 //            will fire along with it. This is due to how iOS loads .m files into memory instead of classes.
 //  Note2: Do NOT directly add swizzled selectors to this category as if this class is loaded into the runtime twice unexpected results will occur.
 //            The oneSignalLoadedTagSelector: selector is used a flag to prevent double swizzling if this library is loaded twice.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wincomplete-implementation"
 @implementation UIApplication (OneSignal)
 + (void)load {
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"UIApplication(OneSignal) LOADED!"];
@@ -2803,6 +2805,6 @@ static NSString *_lastnonActiveMessageId;
 
 @end
 
-
+#pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
