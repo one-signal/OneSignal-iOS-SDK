@@ -187,7 +187,7 @@ static OneSignalLocation* singleInstance = nil;
 
 + (void)sendCurrentAuthStatusToListeners {
     id clLocationManagerClass = NSClassFromString(@"CLLocationManager");
-    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
     if (permissionStatus == kCLAuthorizationStatusNotDetermined)
         return;
 
@@ -204,7 +204,7 @@ static OneSignalLocation* singleInstance = nil;
     // If location permissions was not asked "started" will never be true
     if ([self started]) {
         // We evaluate the following cases after permissions were asked (denied or given)
-        CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+        CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
         // Fallback to settings alert view when the following condition are true:
         //   - On a prompt flow
         //   - Fallback to settings is enabled
@@ -223,7 +223,7 @@ static OneSignalLocation* singleInstance = nil;
         return;
     }
     
-    CLAuthorizationStatus permissionStatus = [clLocationManagerClass performSelector:@selector(authorizationStatus)];
+    CLAuthorizationStatus permissionStatus = (int)[clLocationManagerClass performSelector:@selector(authorizationStatus)];
     // return if permission not determined and should not prompt
     if (permissionStatus == kCLAuthorizationStatusNotDetermined && !prompt)
         return;
@@ -240,7 +240,10 @@ static OneSignalLocation* singleInstance = nil;
     NSString* alwaysDescription = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysUsageDescription"] ?: [[NSBundle mainBundle] objectForInfoDictionaryKey:@"NSLocationAlwaysAndWhenInUseUsageDescription"];
     // use background location updates if always permission granted or prompt allowed
     if (backgroundModes && [backgroundModes containsObject:@"location"] && alwaysDescription && (permissionStatus == kCLAuthorizationStatusAuthorizedAlways || prompt)) {
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         [locationManager performSelector:NSSelectorFromString(@"requestAlwaysAuthorization")];
+        #pragma clang diagnostic pop
         if ([OneSignalHelper isIOSVersionGreaterThanOrEqual:@"9.0"])
             [locationManager setValue:@YES forKey:@"allowsBackgroundLocationUpdates"];
     }
