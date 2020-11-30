@@ -2717,7 +2717,7 @@ static NSString *_lastnonActiveMessageId;
 }
 
 + (BOOL)isValidOutcomeValue:(NSNumber *)value {
-    if (!value || value <= 0) {
+    if (!value || value.intValue <= 0) {
         [self onesignal_Log:ONE_S_LL_ERROR message:@"Outcome value must not be null or 0"];
         return false;
     }

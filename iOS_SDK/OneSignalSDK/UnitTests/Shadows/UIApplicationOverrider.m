@@ -160,9 +160,13 @@ static UIApplication *sharedApplication;
     [appDelegate application:app didRegisterForRemoteNotificationsWithDeviceToken:deviceToken];
 }
 
-- (void) overrideRegisterForRemoteNotifications {
+- (void)overrideRegisterForRemoteNotifications {
     calledRegisterForRemoteNotifications = true;
     [UIApplicationOverrider helperCallDidRegisterForRemoteNotificationsWithDeviceToken];
+}
+
+- (void)overrideRegisterForRemoteNotificationTypes: (UIUserNotificationType) types {
+    //empty
 }
 
 // iOS 9 Only
