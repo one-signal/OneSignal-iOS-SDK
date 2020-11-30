@@ -265,4 +265,8 @@ int messageIdIncrementer = 0;
 @dynamic messageDisplayQueue;
 @dynamic triggerController;
 
+- (void)setTriggerWithName:(NSString *)name withValue:(id)value {
+    [self.triggerController addTriggers:@{name : value}];
+}
+
 @end
