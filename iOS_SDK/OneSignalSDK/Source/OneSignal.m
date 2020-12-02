@@ -2920,9 +2920,13 @@ static NSString *_lastnonActiveMessageId;
     NSProcessInfo *processInfo = [NSProcessInfo processInfo];
     if ([[processInfo processName] isEqualToString:@"IBDesignablesAgentCocoaTouch"] || [[processInfo processName] isEqualToString:@"IBDesignablesAgent-iOS"])
         return;
-    
-    if ([OneSignalHelper isIOSVersionLessThan:@"8.0"])
-        return;
+
+	if ([[processInfo processName] isEqualToString:@"xctest"])
+		return;
+
+	if ([OneSignalHelper isIOSVersionLessThan:@"8.0"]) {
+		return;
+	}
 
     // Double loading of class detection.
     BOOL existing = injectSelector([OneSignalAppDelegate class], @selector(oneSignalLoadedTagSelector:), self, @selector(oneSignalLoadedTagSelector:));
