@@ -282,6 +282,13 @@ OneSignalWebView *webVC;
     return true;
 }
 
++ (BOOL)isDisplayableNotification:(NSDictionary*)msg {
+    if ([self isRemoteSilentNotification:msg]) {
+        return false;
+    }
+    return (msg[@"title"] && [msg[@"title"] length] > 0) || (msg[@"body"] && [msg[@"body"] length] > 0);
+}
+
 + (void)lastMessageReceived:(NSDictionary*)message {
     lastMessageReceived = message;
 }
