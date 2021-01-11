@@ -341,11 +341,6 @@ static BOOL _downloadedParameters = false;
     return _downloadedParameters;
 }
 
-static BOOL _downloadParamsFailed = false;
-+ (BOOL)downloadParamsFailed {
-    return _downloadParamsFailed;
-}
-
 static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (OneSignalReceiveReceiptsController*)receiveReceiptsController {
     if (!_receiveReceiptsController)
@@ -839,7 +834,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
-    _downloadParamsFailed = false;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
@@ -881,7 +875,6 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         
         _downloadedParameters = true;
     } onFailure:^(NSError *error) {
-        _downloadParamsFailed = true;
         _didCallDownloadParameters = false;
     }];
 }
@@ -1542,6 +1535,17 @@ static BOOL isOnSessionSuccessfulForCurrentState = false;
     isOnSessionSuccessfulForCurrentState = value;
 }
 
+static BOOL _registerUserFinished = false;
++ (BOOL)isRegisterUserFinished {
+    if (_registerUserFinished || isOnSessionSuccessfulForCurrentState) {
+        NSLog(@"ECM register finished");
+    } else {
+        NSLog(@"ECM register NOT finished");
+    }
+    
+    return _registerUserFinished || isOnSessionSuccessfulForCurrentState;
+}
+
 + (BOOL)shouldRegisterNow {
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
@@ -1606,7 +1610,7 @@ static dispatch_queue_t serialQueue;
 }
 
 + (void)registerUserInternal {
-    
+    _registerUserFinished = false;
     // return if the user has not granted privacy permissions
     if ([self shouldLogMissingPrivacyConsentErrorWithMethodName:nil])
         return;
@@ -1733,6 +1737,7 @@ static dispatch_queue_t serialQueue;
     }
     
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
+        _registerUserFinished = true;
         immediateOnSessionRetry = NO;
         waitingForOneSReg = false;
         isOnSessionSuccessfulForCurrentState = true;
@@ -1826,6 +1831,7 @@ static dispatch_queue_t serialQueue;
             [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
         }
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
+        _registerUserFinished = true;
         waitingForOneSReg = false;
         
         for (NSString *key in @[@"push", @"email"])
