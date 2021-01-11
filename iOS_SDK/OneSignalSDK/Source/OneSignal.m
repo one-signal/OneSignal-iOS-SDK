@@ -341,6 +341,11 @@ static BOOL _downloadedParameters = false;
     return _downloadedParameters;
 }
 
+static BOOL _downloadParamsFailed = false;
++ (BOOL)downloadParamsFailed {
+    return _downloadParamsFailed;
+}
+
 static OneSignalReceiveReceiptsController* _receiveReceiptsController;
 + (OneSignalReceiveReceiptsController*)receiveReceiptsController {
     if (!_receiveReceiptsController)
@@ -834,7 +839,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
 + (void)downloadIOSParamsWithAppId:(NSString *)appId {
     [self onesignal_Log:ONE_S_LL_DEBUG message:@"Downloading iOS parameters for this application"];
     _didCallDownloadParameters = true;
-    
+    _downloadParamsFailed = false;
     [OneSignalClient.sharedClient executeRequest:[OSRequestGetIosParams withUserId:self.currentSubscriptionState.userId appId:appId] onSuccess:^(NSDictionary *result) {
         if (result[IOS_REQUIRES_EMAIL_AUTHENTICATION]) {
             self.currentEmailSubscriptionState.requiresEmailAuth = [result[IOS_REQUIRES_EMAIL_AUTHENTICATION] boolValue];
@@ -876,6 +881,7 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
         
         _downloadedParameters = true;
     } onFailure:^(NSError *error) {
+        _downloadParamsFailed = true;
         _didCallDownloadParameters = false;
     }];
 }

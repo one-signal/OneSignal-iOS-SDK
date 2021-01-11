@@ -180,7 +180,7 @@
     OSSubscriptionStateChanges* stateChanges = [OSSubscriptionStateChanges alloc];
     stateChanges.from = OneSignal.lastSubscriptionState;
     stateChanges.to = [state copy];
-    if (OneSignal.downloadedParameters) {
+    if (OneSignal.downloadedParameters || OneSignal.downloadParamsFailed) {
         BOOL hasReceiver = [OneSignal.subscriptionStateChangesObserver notifyChange:stateChanges];
         
         if (hasReceiver) {
