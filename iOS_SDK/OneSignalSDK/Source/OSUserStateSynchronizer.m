@@ -39,6 +39,8 @@ THE SOFTWARE.
 
 - (NSString *)getEmailAuthHashToken { mustOverride(); }
 
+- (NSNumber *)getDeviceType { mustOverride(); }
+
 - (OSRequestRegisterUser *)registerUserWithData:(NSDictionary *)registrationData {
     return [OSRequestRegisterUser withData:registrationData userId:[self getId]];
 }
@@ -75,9 +77,8 @@ THE SOFTWARE.
 - (OSRequestOnFocus *)sendOnFocusTime:(NSNumber *)activeTime
                                 appId:(NSString *)appId
                               netType:(NSNumber *)netType
-                           deviceType:(NSNumber *)deviceType
                       influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
-    return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType emailAuthToken:[self getEmailAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken] deviceType:deviceType influenceParams:influenceParams];
+    return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType emailAuthToken:[self getEmailAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken] deviceType:[self getDeviceType] influenceParams:influenceParams];
 }
 
 @end
