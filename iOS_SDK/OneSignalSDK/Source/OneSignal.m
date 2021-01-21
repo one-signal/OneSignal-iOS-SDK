@@ -425,6 +425,10 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     self.currentSubscriptionState.userId = userId;
 }
 
++ (void)registerUserFinished {
+    _registerUserFinished = true;
+}
+
 + (NSString *)mEmailAuthToken {
     return self.currentEmailSubscriptionState.emailAuthCode;
 }
@@ -518,6 +522,8 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     _outcomeEventsCache = nil;
     _outcomeEventFactory = nil;
     _outcomeEventsController = nil;
+    
+    _registerUserFinished = false;
 }
 
 // Set to false as soon as it's read.
@@ -1715,7 +1721,6 @@ static dispatch_queue_t serialQueue;
     
     [OneSignal onesignal_Log:ONE_S_LL_VERBOSE message:@"Calling OneSignal create/on_session"];
     [self.stateSynchronizer registerUserWithState:userState withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
-        _registerUserFinished = true;
         immediateOnSessionRetry = NO;
         waitingForOneSReg = false;
         isOnSessionSuccessfulForCurrentState = true;
@@ -1768,7 +1773,6 @@ static dispatch_queue_t serialQueue;
             [self receivedInAppMessageJson:results[@"push"][@"in_app_messages"]];
         }
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
-        _registerUserFinished = true;
         waitingForOneSReg = false;
         
         // If the failed registration is priority, force the next one to be a high priority
@@ -2471,7 +2475,7 @@ static NSString *_lastnonActiveMessageId;
         delayedExternalIdParameters = [OneSignalSetExternalIdParameters withExternalId:externalId withAuthToken:hashToken withSuccess:successBlock withFailure:failureBlock];
         return;
     } else if (!appId) {
-        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Attempted to set external user id, butapp_id is not set"];
+        [OneSignal onesignal_Log:ONE_S_LL_WARN message:@"Attempted to set external user id, but app_id is not set"];
         if (failureBlock)
             failureBlock([NSError errorWithDomain:@"com.onesignal" code:0 userInfo:@{@"error" : [NSString stringWithFormat:@"%@ is not set", appId == nil ? @"app_id" : @"user_id"]}]);
         return;
