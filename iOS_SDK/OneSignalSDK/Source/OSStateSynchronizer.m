@@ -212,7 +212,7 @@ THE SOFTWARE.
     [OneSignalClient.sharedClient executeSimultaneousRequests:requests withSuccess:^(NSDictionary<NSString *, NSDictionary *> *results) {
         // The tags for email & push are identical so it doesn't matter what we return in the success block
         if (nowProcessingCallbacks) {
-            NSDictionary *resultTags = results[OS_PUSH] ?: results[OS_EMAIL];
+            NSDictionary *resultTags = [self getResultByChannel:results];
             
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks)
                 if (callbackSet.successBlock)
@@ -220,9 +220,10 @@ THE SOFTWARE.
         }
     } onFailure:^(NSDictionary<NSString *, NSError *> *errors) {
         if (nowProcessingCallbacks) {
+            NSError *error = (NSError *)[self getResultByChannel:errors];
             for (OSPendingCallbacks *callbackSet in nowProcessingCallbacks) {
                 if (callbackSet.failureBlock) {
-                    callbackSet.failureBlock((NSError *)(errors[OS_PUSH] ?: errors[OS_EMAIL]));
+                    callbackSet.failureBlock(error);
                 }
             }
         }
@@ -290,4 +291,22 @@ THE SOFTWARE.
     }];
 }
 
+-(id)getResultByChannel:(NSDictionary<NSString *, id> *)results {
+    id result;
+    for (NSString* channelId in OS_PRIMARY_CHANNELS) {
+        result = results[channelId];
+        if (result)
+            break;
+    }
+    
+    if (!result) {
+        for (NSString* channelId in OS_SECONDARY_CHANNELS) {
+            result = results[channelId];
+            if (result)
+                break;
+        }
+    }
+    
+    return result;
+}
 @end
