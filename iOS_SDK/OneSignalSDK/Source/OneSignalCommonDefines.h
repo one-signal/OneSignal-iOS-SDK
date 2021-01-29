@@ -135,6 +135,7 @@
 
 // Info.plist key
 #define FALLBACK_TO_SETTINGS_MESSAGE @"Onesignal_settings_fallback_message"
+#define ONESIGNAL_SUPRESS_LAUNCH_URLS @"OneSignal_suppress_launch_urls"
 
 // GDPR Privacy Consent
 #define GDPR_CONSENT_GRANTED @"GDPR_CONSENT_GRANTED"
@@ -180,6 +181,13 @@ typedef enum {BACKGROUND, END_SESSION} FocusEventType;
 // OneSignal Focus Types
 typedef enum {ATTRIBUTED, NOT_ATTRIBUTED} FocusAttributionState;
 #define focusAttributionStateString(enum) [@[@"ATTRIBUTED", @"NOT_ATTRIBUTED"] objectAtIndex:enum]
+
+// OneSignal constants
+#define OS_PUSH @"push"
+#define OS_EMAIL @"email"
+#define OS_SUCCESS @"success"
+
+#define OS_CHANNELS @[OS_PUSH, OS_EMAIL]
 
 // OneSignal API Client Defines
 typedef enum {GET, POST, HEAD, PUT, DELETE, OPTIONS, CONNECT, TRACE} HTTPMethod;

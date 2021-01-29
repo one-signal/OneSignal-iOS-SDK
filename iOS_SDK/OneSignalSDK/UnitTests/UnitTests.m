@@ -71,6 +71,7 @@
 #import "OneSignalLocation.h"
 #import "OneSignalLocationOverrider.h"
 #import "UIDeviceOverrider.h"
+#import "OneSignalOverrider.h"
 
 // Dummies
 #import "DummyNotificationCenterDelegate.h"
@@ -106,6 +107,7 @@
 - (void)setUp {
     [super setUp];
     [UnitTestCommonMethods beforeEachTest:self];
+    OneSignalOverrider.shouldOverrideLaunchURL = false;
 
     // Only enable remote-notifications in UIBackgroundModes
     NSBundleOverrider.nsbundleDictionary = @{@"UIBackgroundModes": @[@"remote-notification"]};
@@ -152,7 +154,10 @@
                                                                           
 - (UNNotificationResponse*)createBasiciOSNotificationResponse {
   id userInfo = @{@"custom":
-                       @{ @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba" }
+                      @{ @"i": @"b2f7f966-d8cc-11e4-bed1-df8f05be55ba",
+                         @"u": @"onesignal.com"
+                      }
+                    
                 };
   
   return [UnitTestCommonMethods createBasiciOSNotificationResponseWithPayload:userInfo];
@@ -602,6 +607,7 @@
     
     XCTAssertEqual(observer->last.from.isSubscribed, true);
     XCTAssertEqual(observer->last.to.isSubscribed, false);
+    XCTAssertEqual(observer->fireCount, 2);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
@@ -2746,7 +2752,6 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPushAndEmail_withAuthHash {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL withEmailAuthHashToken:TEST_EMAIL_HASH_TOKEN];
     [UnitTestCommonMethods runBackgroundThreads];
@@ -2992,4 +2997,30 @@ didReceiveRemoteNotification:userInfo
     XCTAssertEqualObjects(json[@"templateName"], @"Template name");
 }
 
+- (void)testLaunchURL {
+        
+    // 1. Init OneSignal with app start
+    [UnitTestCommonMethods initOneSignal];
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 2. Simulate a notification being opened
+    let notifResponse = [self createBasiciOSNotificationResponse];
+    let notifCenter = UNUserNotificationCenter.currentNotificationCenter;
+    let notifCenterDelegate = notifCenter.delegate;
+    [notifCenterDelegate userNotificationCenter:notifCenter didReceiveNotificationResponse:notifResponse withCompletionHandler:^() {}];
+
+    // 3. Setup OneSignal.setNotificationOpenedHandler
+    __block BOOL openedWasFire = false;
+    [OneSignal setNotificationOpenedHandler:^(OSNotificationOpenedResult * _Nonnull result) {
+        openedWasFire = true;
+    }];
+    // 4. Wait for open event to fire
+    [UnitTestCommonMethods runBackgroundThreads];
+
+    // 5. Ensure the OneSignal public callback fired
+    XCTAssertTrue(openedWasFire);
+    
+    // 6. Ensure the launch URL was not opened
+    XCTAssertFalse(OneSignalOverrider.launchWebURLWasCalled);
+}
 @end

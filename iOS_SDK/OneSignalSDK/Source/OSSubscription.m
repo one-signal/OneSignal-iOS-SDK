@@ -127,6 +127,7 @@
 - (void)setIsPushDisabled:(BOOL)isPushDisabled {
     BOOL changed = isPushDisabled != _isPushDisabled;
     _isPushDisabled = isPushDisabled;
+
     if (self.observable && changed)
         [self.observable notifyChange:self];
 }
@@ -154,8 +155,8 @@
 }
 
 - (NSString*)description {
-    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, isPushDisabled: %d, isSubscribed: %d>";
-    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.isPushDisabled, self.isSubscribed];
+    static NSString* format = @"<OSSubscriptionState: userId: %@, pushToken: %@, isPushDisabled: %d, isSubscribed: %d, externalIdAuthCode: %@>";
+    return [NSString stringWithFormat:format, self.userId, self.pushToken, self.isPushDisabled, self.isSubscribed, self.externalIdAuthCode];
 }
 
 - (NSDictionary*)toDictionary {
