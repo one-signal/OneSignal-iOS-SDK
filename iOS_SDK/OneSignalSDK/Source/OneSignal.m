@@ -570,9 +570,9 @@ static OneSignalOutcomeEventsController *_outcomeEventsController;
     [self init];
 }
 
-+ (BOOL)shouldOpenURL {
++ (BOOL)shouldSuppressURL {
     // if the plist key does not exist default to false
-    // the plist value specifies whether the user wants to open an url using default browser or OSwebView
+    // the plist value specifies whether the user wants to open an url using default browser or OSWebView
     return [[[NSBundle mainBundle] objectForInfoDictionaryKey:ONESIGNAL_SUPRESS_LAUNCH_URLS] boolValue] ?: false;
 }
 
