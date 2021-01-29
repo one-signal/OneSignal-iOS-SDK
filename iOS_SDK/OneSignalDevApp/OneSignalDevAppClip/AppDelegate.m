@@ -67,12 +67,12 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
         NSString *message = [NSString stringWithFormat:@"Click Action Occurred: %@", [action jsonRepresentation]];
         [OneSignal onesignalLog:ONE_S_LL_DEBUG message:message];
     };
-
+        
     // Example setter for IAM action click handler using OneSignal public method
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
     
     // OneSignal Init with app id and lauch options
-    [OneSignal setLaunchURLsInApp:YES];
+    [OneSignal setLaunchURLsInApp:shouldOpenURL];
     [OneSignal setProvidesNotificationSettingsView:NO];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal initWithLaunchOptions:launchOptions];
