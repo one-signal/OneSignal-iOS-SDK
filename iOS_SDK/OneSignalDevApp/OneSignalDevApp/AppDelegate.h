@@ -37,7 +37,6 @@
 
 + (NSString*)getOneSignalAppId;
 + (void) setOneSignalAppId:(NSString*)onesignalAppId;
-+ (BOOL) shouldOpenURL;
 
 @end
 

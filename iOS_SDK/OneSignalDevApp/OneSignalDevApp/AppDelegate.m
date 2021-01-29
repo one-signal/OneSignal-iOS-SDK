@@ -77,7 +77,7 @@ OneSignalNotificationCenterDelegate *_notificationDelegate;
     [OneSignal setInAppMessageClickHandler:inAppMessagingActionClickBlock];
     
     // OneSignal Init with app id and lauch options
-    [OneSignal setLaunchURLsInApp:shouldOpenURL];
+    [OneSignal setLaunchURLsInApp:YES];
     [OneSignal setProvidesNotificationSettingsView:NO];
     [OneSignal setAppId:[AppDelegate getOneSignalAppId]];
     [OneSignal initWithLaunchOptions:launchOptions];
