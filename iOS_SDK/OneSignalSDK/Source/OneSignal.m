@@ -2044,9 +2044,11 @@ static NSString *_lastnonActiveMessageId;
     onesignal_Log(ONE_S_LL_VERBOSE, [NSString stringWithFormat:@"handleNotificationOpened called! isActive: %@ notificationId: %@",
                                      isActive ? @"YES" : @"NO", messageId]);
 
-    // Try to fetch the open url to launch
-    [OneSignal launchWebURL:[customDict objectForKey:@"u"]];
-    
+    if ([OneSignal shouldSuppressURL]) {
+        // Try to fetch the open url to launch
+        [OneSignal launchWebURL:notification.launchURL];
+    }
+        
     [self clearBadgeCount:true];
     
     NSString* actionID = NULL;
