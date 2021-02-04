@@ -602,6 +602,7 @@
     
     XCTAssertEqual(observer->last.from.isSubscribed, true);
     XCTAssertEqual(observer->last.to.isSubscribed, false);
+    XCTAssertEqual(observer->fireCount, 2);
 }
 
 - (void)testSubscriptionChangeObserverWhenPromptNotShown {
@@ -2746,7 +2747,6 @@ didReceiveRemoteNotification:userInfo
 - (void)testRemoveExternalUserId_forPushAndEmail_withAuthHash {
     // 1. Init OneSignal
     [UnitTestCommonMethods initOneSignal_andThreadWait];
-    
     // 2. Set email
     [OneSignal setEmail:TEST_EMAIL withEmailAuthHashToken:TEST_EMAIL_HASH_TOKEN];
     [UnitTestCommonMethods runBackgroundThreads];
