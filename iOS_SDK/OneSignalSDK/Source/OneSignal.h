@@ -402,7 +402,6 @@ extern NSString* const ONESIGNAL_VERSION;
 + (void)initWithLaunchOptions:(NSDictionary* _Nullable)launchOptions;
 + (void)setLaunchURLsInApp:(BOOL)launchInApp;
 + (void)setProvidesNotificationSettingsView:(BOOL)providesView;
-+ (BOOL)shouldSuppressURL;
 
 #pragma mark Logging
 typedef NS_ENUM(NSUInteger, ONE_S_LOG_LEVEL) {
