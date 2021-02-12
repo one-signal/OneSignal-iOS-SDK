@@ -83,4 +83,40 @@ THE SOFTWARE.
     return [OSRequestOnFocus withUserId:[self getId] appId:appId activeTime:activeTime netType:netType emailAuthToken:[self getEmailAuthHashToken] externalIdAuthToken:[self getExternalIdAuthHashToken] deviceType:[self getDeviceType] influenceParams:influenceParams];
 }
 
+- (OSRequestSendPurchases *)sendPurchases:(NSArray *)purchases
+                                    appId:(NSString *)appId
+                                   userId:(NSString *)userId
+                      externalIdAuthToken:(NSString *)externalIdAuthToken {
+    return [OSRequestSendPurchases withUserId:userId externalIdAuthToken:externalIdAuthToken appId:appId withPurchases:purchases];
+}
+
+- (OSRequestBadgeCount *)sendBadgeCount:(NSNumber *)badgeCount
+                                  appId:(NSString *)appId
+                                 userId:(NSString *)userId
+                     emailAuthHashToken:(NSString *)emailAuthHashToken
+                externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
+    return [OSRequestBadgeCount withUserId:userId appId:appId badgeCount:badgeCount emailAuthToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
+}
+
+- (OSRequestSendLocation *)sendLocation:(os_last_location *)lastLocation
+                                  appId:(NSString *)appId
+                                 userId:(NSString *)userId
+                            networkType:(NSNumber *)networkType
+                        backgroundState:(BOOL)background
+                     emailAuthHashToken:(NSString *)emailAuthHashToken
+                externalIdAuthHashToken:(NSString *)externalIdAuthHashToken {
+    return [OSRequestSendLocation withUserId:userId appId:appId location:lastLocation networkType:networkType backgroundState:background emailAuthHashToken:emailAuthHashToken externalIdAuthToken:externalIdAuthHashToken];
+}
+
+- (OSRequestOnFocus *)sendOnFocusTime:(NSNumber *)activeTime
+                               userId:(NSString *)userId
+                                appId:(NSString *)appId
+                              netType:(NSNumber *)netType
+                       emailAuthToken:(NSString *)emailAuthHash
+                  externalIdAuthToken:(NSString *)externalIdAuthToken
+                           deviceType:(NSNumber *)deviceType
+                      influenceParams:(NSArray <OSFocusInfluenceParam *> *)influenceParams {
+    return [OSRequestOnFocus withUserId:userId appId:appId activeTime:activeTime netType:netType emailAuthToken:emailAuthHash externalIdAuthToken:externalIdAuthToken deviceType:deviceType influenceParams:influenceParams];
+}
+
 @end
