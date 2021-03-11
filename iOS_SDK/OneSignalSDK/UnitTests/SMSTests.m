@@ -486,9 +486,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
@@ -516,9 +515,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
@@ -575,9 +573,8 @@ void onesignal_Log(ONE_S_LOG_LEVEL logLevel, NSString* message);
     XCTAssertEqualObjects(@"players", createDeviceRequest.path);
     XCTAssertEqualObjects(expectedUrl, updateDeviceRequest.path);
     
-    XCTAssertEqual(7, createDeviceRequest.parameters.count);
+    XCTAssertEqual(6, createDeviceRequest.parameters.count);
     XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"app_id"]);
-    XCTAssertTrue([createDeviceRequest.parameters objectForKey:@"notification_types"]);
     XCTAssertEqualObjects(OneSignalClientOverrider.pushUserId, [createDeviceRequest.parameters objectForKey:@"device_player_id"]);
     XCTAssertEqualObjects(@(DEVICE_TYPE_SMS), [createDeviceRequest.parameters objectForKey:@"device_type"]);
     XCTAssertEqualObjects(self.ONESIGNAL_SMS_NUMBER, createDeviceRequest.parameters[@"identifier"]);
