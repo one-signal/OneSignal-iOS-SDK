@@ -1388,15 +1388,24 @@ didReceiveRemoteNotification:userInfo
     [UnitTestCommonMethods initOneSignal_andThreadWait];
     
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    XCTestExpectation *errorExpectation = [self expectationWithDescription:@"onesignal_failure_block_called"];
+    errorExpectation.expectedFulfillmentCount = 1;
     //The OneSignal class is not a valid json object
-    [OneSignal sendTags:@{@"key1": @"value1", @"key2": [OneSignal new]}];
+    [OneSignal sendTags:@{@"key1": @"value1", @"key2": [OneSignal new]} onSuccess:^(NSDictionary *result) {
+        XCTAssertNotNil(nil); //Assert if success is called
+    } onFailure:^(NSError *error) {
+        XCTAssertEqualObjects(error.domain, @"com.onesignal.tags");
+        [errorExpectation fulfill];
+    }];
     
     // Make sure the tags were not sent.
     [NSObjectOverrider runPendingSelectors];
     [UnitTestCommonMethods runBackgroundThreads];
     [NSObjectOverrider runPendingSelectors];
     
+    
     XCTAssertEqual(OneSignalClientOverrider.networkRequestCount, 2);
+    [self waitForExpectations:@[errorExpectation] timeout:1];
 }
 
 - (void)testDeleteTags {
